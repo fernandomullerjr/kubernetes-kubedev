@@ -222,7 +222,119 @@ EXPOSE 8080
 CMD ["node", "server.js"]
 
 
--
+
 - Buildar a imagem da aplicação novamente:
 
 docker image build -t conversao-temperatura .
+
+fernando@debian10x64:~/cursos/kubedev/aula49-Primeira-aplicacao-em-container/conversao-temperatura/src$ docker image build -t conversao-temperatura .
+Sending build context to Docker daemon  22.59MB
+Step 1/6 : FROM node
+ ---> f8c8d04432c3
+Step 2/6 : WORKDIR /app
+ ---> Using cache
+ ---> 1232a7e56835
+Step 3/6 : COPY . .
+ ---> fffbdf2ecb43
+Step 4/6 : RUN npm install
+ ---> Running in 90a096040278
+[...]
+Removing intermediate container 90a096040278
+ ---> dc98c529c01a
+Step 5/6 : EXPOSE 8080
+ ---> Running in 973e07e4f453
+Removing intermediate container 973e07e4f453
+ ---> 4ae351a5f1f3
+Step 6/6 : CMD ["node", "server.js"]
+ ---> Running in af6183b94975
+Removing intermediate container af6183b94975
+ ---> 068eaf99248e
+Successfully built 068eaf99248e
+Successfully tagged conversao-temperatura:latest
+
+
+
+
+
+- Adicionado um comentário no arquivo /home/fernando/cursos/kubedev/aula49-Primeira-aplicacao-em-container/conversao-temperatura/src/server.js
+// comentario
+
+
+
+- Buildar a imagem da aplicação novamente:
+
+docker image build -t conversao-temperatura .
+
+fernando@debian10x64:~/cursos/kubedev/aula49-Primeira-aplicacao-em-container/conversao-temperatura/src$ docker image build -t conversao-temperatura .
+Sending build context to Docker daemon  22.59MB
+Step 1/6 : FROM node
+ ---> f8c8d04432c3
+Step 2/6 : WORKDIR /app
+ ---> Using cache
+ ---> 1232a7e56835
+Step 3/6 : COPY . .
+ ---> 93f69a02a829
+Step 4/6 : RUN npm install
+ ---> Running in 6bdeb09c7e74
+npm WARN old lockfile
+npm WARN old lockfile The package-lock.json file was created with an old version of npm,
+npm WARN old lockfile so supplemental metadata must be fetched from the registry.
+npm WARN old lockfile
+npm WARN old lockfile This is a one-time fix-up, please be patient...
+npm WARN old lockfile
+
+up to date, audited 78 packages in 2s
+
+1 package is looking for funding
+  run `npm fund` for details
+
+2 moderate severity vulnerabilities
+
+To address all issues, run:
+  npm audit fix
+
+Run `npm audit` for details.
+npm notice
+npm notice New minor version of npm available! 8.4.1 -> 8.5.0
+npm notice Changelog: <https://github.com/npm/cli/releases/tag/v8.5.0>
+npm notice Run `npm install -g npm@8.5.0` to update!
+npm notice
+Removing intermediate container 6bdeb09c7e74
+ ---> 69d1cb22dbe9
+Step 5/6 : EXPOSE 8080
+ ---> Running in 12ad98851ae5
+Removing intermediate container 12ad98851ae5
+ ---> d74950240327
+Step 6/6 : CMD ["node", "server.js"]
+ ---> Running in 143fd3588686
+Removing intermediate container 143fd3588686
+ ---> 51dd5e18e6bc
+Successfully built 51dd5e18e6bc
+Successfully tagged conversao-temperatura:latest
+fernando@debian10x64:~/cursos/kubedev/aula49-Primeira-aplicacao-em-container/conversao-temperatura/src$
+
+
+- Nesse caso o "npm install" acaba sendo executado novamente durante o build. Por isto é interessante o COPY de todos os arquivos depois, para que
+no inicio do build sejam copiados apenas os arquivos de package, que tem relevância ao "npm install" e seja otimizado o build, aproveitando o cache das
+camadas do projeto.
+
+- Dockerfile - ÑOK - não está otimizado:
+
+FROM node
+WORKDIR /app
+COPY . .
+# COPY package*.json ./
+RUN npm install
+EXPOSE 8080
+CMD ["node", "server.js"]
+
+
+- Dockerfile - OK - otimizadas as camadas para aproveitar melhor o uso do Cache nas camadas:
+
+FROM node
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 8080
+CMD ["node", "server.js"]
