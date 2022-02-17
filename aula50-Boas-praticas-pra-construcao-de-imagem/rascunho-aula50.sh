@@ -194,3 +194,257 @@ npm WARN app No description
 npm WARN app No repository field.
 npm WARN app No README data
 npm WARN app No license field.
+
+
+
+
+
+# COPY vs ADD
+
+- Procurar utilizar sempre o COPY, se não for extrair ou compactar algo.
+
+# ENTRYPOINT vs CMD
+
+- O ENTRYPOINT é imutável, já o CMD é possível escrever ele novamente.
+
+- Criar um Dockerfile que vai usar o ENTRYPOINT
+vi /home/fernando/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/entry/Dockerfile
+
+FROM ubuntu
+WORKDIR /app
+COPY ./entrypoint.sh ./entrypoint.sh
+RUN chmod +x ./entrypoint.sh
+CMD ["./entrypoint.sh"]
+
+
+-Criado o arquivo Shell que será usado:
+vi /home/fernando/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/entry/entrypoint.sh
+
+#!/bin/bash
+echo "Iniciando o container"
+
+- Efetuar o build da imagem do ENTRYPOINT:
+cd /home/fernando/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/entry
+docker image build -t fernandomj90/entrypoint-teste:v1 .
+
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/entry$ docker image build -t fernandomj90/entrypoint-teste:v1 .
+Sending build context to Docker daemon  3.072kB
+Step 1/5 : FROM ubuntu
+ ---> ba6acccedd29
+Step 2/5 : WORKDIR /app
+ ---> Running in b0931d53d4bf
+Removing intermediate container b0931d53d4bf
+ ---> c01167516190
+Step 3/5 : COPY ./entrypoint.sh ./entrypoint.sh
+ ---> 6865935cbc22
+Step 4/5 : RUN chmod +x ./entrypoint.sh
+ ---> Running in 9c6d65dc0ffe
+Removing intermediate container 9c6d65dc0ffe
+ ---> edf5b92fa411
+Step 5/5 : CMD ["./entrypoint.sh"]
+ ---> Running in 3853cac4bc3b
+Removing intermediate container 3853cac4bc3b
+ ---> 343f5dfa0148
+Successfully built 343f5dfa0148
+Successfully tagged fernandomj90/entrypoint-teste:v1
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/entry$
+
+
+-Verificando a imagem criada:
+
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/entry$ docker image ls
+REPOSITORY                           TAG       IMAGE ID       CREATED          SIZE
+fernandomj90/entrypoint-teste        v1        343f5dfa0148   20 minutes ago   72.8MB
+
+
+- Executando o Container com base na imagem que criamos:
+
+docker container run fernandomj90/entrypoint-teste:v1
+
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/entry$ docker container run fernandomj90/entrypoint-teste:v1
+Iniciando o container
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/entry$
+
+
+
+- Mudando o que será executado no Container:
+
+docker container run fernandomj90/entrypoint-teste:v1 echo "Outro comando"
+
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/entry$ docker container run fernandomj90/entrypoint-teste:v1 echo "Outro comando"
+Outro comando
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/entry$
+
+
+
+- Ajustando o Dockerfile para ENTRYPOINT no lugar de CMD:
+
+FROM ubuntu
+WORKDIR /app
+COPY ./entrypoint.sh ./entrypoint.sh
+RUN chmod +x ./entrypoint.sh
+ENTRYPOINT ["./entrypoint.sh"]
+
+- Buildando a imagem, agora com entrypoint, mudando o nome da versão:
+
+docker image build -t fernandomj90/entrypoint-teste:v2entry .
+
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/entry$ docker image build -t fernandomj90/entrypoint-teste:v2entry .
+Sending build context to Docker daemon  3.072kB
+Step 1/5 : FROM ubuntu
+ ---> ba6acccedd29
+Step 2/5 : WORKDIR /app
+ ---> Using cache
+ ---> c01167516190
+Step 3/5 : COPY ./entrypoint.sh ./entrypoint.sh
+ ---> Using cache
+ ---> 6865935cbc22
+Step 4/5 : RUN chmod +x ./entrypoint.sh
+ ---> Using cache
+ ---> edf5b92fa411
+Step 5/5 : ENTRYPOINT ["./entrypoint.sh"]
+ ---> Running in 7c0927624fae
+Removing intermediate container 7c0927624fae
+ ---> e9c9a4715e30
+Successfully built e9c9a4715e30
+Successfully tagged fernandomj90/entrypoint-teste:v2entry
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/entry$
+
+
+- Executando o Container com base na Nova imagem que criamos, que usa ENTRYPOINT no lugar de CMD:
+
+docker container run fernandomj90/entrypoint-teste:v2entry
+
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/entry$ docker container run fernandomj90/entrypoint-teste:v2entry
+Iniciando o container
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/entry$
+
+- Tentando executar outro comando pelo echo, porém via ENTRYPOINT não tem o mesmo efeito, o comando personalizado não é executado:
+
+docker container run fernandomj90/entrypoint-teste:v2entry echo "Outro comando"
+
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/entry$ docker container run fernandomj90/entrypoint-teste:v2entry echo "Outro comando"
+Iniciando o container
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/entry$
+
+
+
+
+
+- Modificar o script em Shell, para que 
+
+#!/bin/bash
+if [ -z $1]
+then
+    echo "Iniciando o container sem nada."
+else
+    echo "Iniciando o container com o parametro $1"
+fi
+
+
+- Buildando nova imagem com base no novo script Shell:
+
+docker image build -t fernandomj90/entrypoint-teste:v3entry .
+
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/entry$ docker image build -t fernandomj90/entrypoint-teste:v3entry .
+Sending build context to Docker daemon  3.072kB
+Step 1/5 : FROM ubuntu
+ ---> ba6acccedd29
+Step 2/5 : WORKDIR /app
+ ---> Using cache
+ ---> c01167516190
+Step 3/5 : COPY ./entrypoint.sh ./entrypoint.sh
+ ---> a0f78e894b3a
+Step 4/5 : RUN chmod +x ./entrypoint.sh
+ ---> Running in 4323a616f8f2
+Removing intermediate container 4323a616f8f2
+ ---> 764053de4034
+Step 5/5 : ENTRYPOINT ["./entrypoint.sh"]
+ ---> Running in 1cebaf900c7c
+Removing intermediate container 1cebaf900c7c
+ ---> b1ae61b30efd
+Successfully built b1ae61b30efd
+Successfully tagged fernandomj90/entrypoint-teste:v3entry
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/entry$
+
+obs:
+agora o build não usou o Cache do Step de COPY do arquivo Shell do entrypoint.
+
+
+- Executando o container com base na imagem que usa o novo Script Entrypoint:
+
+docker container run fernandomj90/entrypoint-teste:v3entry
+
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/entry$ docker container run fernandomj90/entrypoint-teste:v3entry
+Iniciando o container sem nada.
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/entry$
+
+
+
+- Executando o container com base na imagem que usa o novo Script Entrypoint, só que agora passando um parâmetro:
+
+docker container run fernandomj90/entrypoint-teste:v3entry teste
+
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/entry$ docker container run fernandomj90/entrypoint-teste:v3entry teste
+Iniciando o container com o parametro teste
+./entrypoint.sh: line 2: [: missing `]'
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/entry$
+'''`
+
+
+- Ajustado o script em Shell, adicionado um espaço após a variável, antes do colchete:
+
+#!/bin/bash
+if [ -z $1 ]
+then
+    echo "Iniciando o container sem nada."
+else
+    echo "Iniciando o container com o parametro $1"
+fi
+
+
+- Buildando novamente:
+
+docker image build -t fernandomj90/entrypoint-teste:v4entry .
+
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/entry$ docker image build -t fernandomj90/entrypoint-teste:v4entry .
+Sending build context to Docker daemon  3.072kB
+Step 1/5 : FROM ubuntu
+ ---> ba6acccedd29
+Step 2/5 : WORKDIR /app
+ ---> Using cache
+ ---> c01167516190
+Step 3/5 : COPY ./entrypoint.sh ./entrypoint.sh
+ ---> 3594486f573c
+Step 4/5 : RUN chmod +x ./entrypoint.sh
+ ---> Running in 05f9d6681fcf
+Removing intermediate container 05f9d6681fcf
+ ---> 83e47c325b45
+Step 5/5 : ENTRYPOINT ["./entrypoint.sh"]
+ ---> Running in 9e121c94e5e3
+Removing intermediate container 9e121c94e5e3
+ ---> 47e925aa74c3
+Successfully built 47e925aa74c3
+Successfully tagged fernandomj90/entrypoint-teste:v4entry
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/entry$
+
+
+
+- Executando o container com base na imagem que usa o novo Script Entrypoint:
+
+docker container run fernandomj90/entrypoint-teste:v4entry
+
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/entry$ docker container run fernandomj90/entrypoint-teste:v4entry
+Iniciando o container sem nada.
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/entry$
+
+
+- Executando o container com base na imagem que usa o novo Script Entrypoint, só que agora passando um parâmetro:
+
+docker container run fernandomj90/entrypoint-teste:v4entry teste
+
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/entry$ docker container run fernandomj90/entrypoint-teste:v4entry teste
+Iniciando o container com o parametro teste
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/entry$
+
+agora não retornou o erro de "./entrypoint.sh: line 2: [: missing"
