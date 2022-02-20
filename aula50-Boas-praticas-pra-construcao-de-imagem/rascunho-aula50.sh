@@ -203,6 +203,18 @@ npm WARN app No license field.
 
 - Procurar utilizar sempre o COPY, se não for extrair ou compactar algo.
 
+
+
+
+
+#########################################################################################################################################################
+#########################################################################################################################################################
+#########################################################################################################################################################
+#########################################################################################################################################################
+#########################################################################################################################################################
+#########################################################################################################################################################
+#########################################################################################################################################################
+
 # ENTRYPOINT vs CMD
 
 - O ENTRYPOINT é imutável, já o CMD é possível escrever ele novamente.
@@ -448,3 +460,236 @@ Iniciando o container com o parametro teste
 fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/entry$
 
 agora não retornou o erro de "./entrypoint.sh: line 2: [: missing"
+
+
+
+
+#### Observações
+- Usando o CMD eu consigo sobrescrever alguns parametros depois da execução.
+- Usando o ENTRYPOINT eu não consigo sobrescrever o parametro durante a execução.
+- O ENTRYPOINT é usado quando a inicialização do Container é imutável.
+
+
+- Reforçando, sobre o script de exemplo do Shell script usado no ENTRYPOINT:
+
+#!/bin/bash
+
+# -z
+
+#    string is null, that is, has zero length
+
+#     String=''   # Zero-length ("null") string variable.
+
+    if [ -z "$String" ]
+    then
+      echo "\$String is null."
+    else
+      echo "\$String is NOT null."
+    fi     # $String is null.
+
+
+
+
+
+
+#########################################################################################################################################################
+#########################################################################################################################################################
+#########################################################################################################################################################
+#########################################################################################################################################################
+#########################################################################################################################################################
+#########################################################################################################################################################
+#########################################################################################################################################################
+
+# 19/02/2022
+# Usando argumentos na construção de imagens
+
+- Criando um Dockerfile que passa um argumento que é uma tag:
+
+ARG TAG=latest
+FROM ubuntu:$TAG
+RUN apt-get update && \
+    apt-get install curl --yes
+
+
+- Buildando a imagem do ubuntu passando um argumento para a tag:
+
+cd imagem-arg/
+docker image build -t fernandomj90/ubuntu-imagem-com-argumento:v1 --build-arg TAG="18.04" .
+
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/imagem-arg$ docker image build -t fernandomj90/ubuntu-imagem-com-argumento:v1 --build-arg TAG="18.04" .
+Sending build context to Docker daemon  2.048kB
+Step 1/3 : ARG TAG=latest
+Step 2/3 : FROM ubuntu:$TAG
+18.04: Pulling from library/ubuntu
+68e7bb398b9f: Pull complete
+Digest: sha256:c2aa13782650aa7ade424b12008128b60034c795f25456e8eb552d0a0f447cad
+Status: Downloaded newer image for ubuntu:18.04
+ ---> dcf4d4bef137
+Step 3/3 : RUN apt-get update &&     apt-get install curl --yes
+ ---> Running in b44951a03d79
+Get:1 http://archive.ubuntu.com/ubuntu bionic InRelease [242 kB]
+Removing intermediate container b44951a03d79
+ ---> 9d5153a2fe69
+Successfully built 9d5153a2fe69
+Successfully tagged fernandomj90/ubuntu-imagem-com-argumento:v1
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/imagem-arg$
+
+
+- Verificando a imagem que foi buildada agora:
+
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/imagem-arg$ docker image ls | head
+REPOSITORY                                 TAG       IMAGE ID       CREATED          SIZE
+fernandomj90/ubuntu-imagem-com-argumento   v1        9d5153a2fe69   41 seconds ago   117MB
+
+
+-Verificando que a TAG foi aceita, pois baixou a imagem 18.04:
+
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/imagem-arg$ docker image ls | grep ubuntu | grep 18.04
+ubuntu                                     18.04     dcf4d4bef137   2 weeks ago     63.2MB
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/imagem-arg$
+
+
+
+
+#########################################################################################################################################################
+#########################################################################################################################################################
+#########################################################################################################################################################
+#########################################################################################################################################################
+#########################################################################################################################################################
+#########################################################################################################################################################
+#########################################################################################################################################################
+# 19/02/2022
+# Multistage Build
+
+Tipos de linguagem de programação:
+Interpretadas
+Compiladas
+JIT(Just in time)
+
+Compiladas:
+Go, C++,
+
+JIT(Just in time)
+Passa pelos 2 processos, interpretação e compilação
+
+
+- Essas imagens em Golang que tem apenas 10MB, tem esse tamanho pequeno devido o Multistage. Senão, teria que ter todo o SDK e tudo mais.
+- Usando o JIT(Just in time) ou Compilada no processo de Build de uma imagem e usando o Multistage, irá reduzir o tamanho dela.
+
+
+
+- Criando um Dockerfile que vai Buildar uma imagem do Golang e iniciar o main, conforme o CMD do Dockerfile:
+
+vi /home/fernando/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/go-app/Dockerfile
+
+FROM golang:1.7.3
+WORKDIR /app
+COPY main.go .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
+CMD ["./main"]
+
+
+
+- Buildando a imagem do Go mais simples:
+
+docker image build -t fernandomj90/go-app-simples:v1 .
+
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/go-app$ docker image build -t fernandomj90/go-app-simples:v1 .
+Sending build context to Docker daemon  3.072kB
+Step 1/5 : FROM golang:1.7.3
+ ---> ef15416724f6
+Step 2/5 : WORKDIR /app
+ ---> Using cache
+ ---> b981f418f3ed
+Step 3/5 : COPY main.go .
+ ---> Using cache
+ ---> 98d0374e52da
+Step 4/5 : RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
+ ---> Running in ae914b019d7b
+Removing intermediate container ae914b019d7b
+ ---> eb8ba18f5cd2
+Step 5/5 : CMD ["./main"]
+ ---> Running in 42c81437fbd9
+Removing intermediate container 42c81437fbd9
+ ---> 41b88ed002d2
+Successfully built 41b88ed002d2
+Successfully tagged fernandomj90/go-app-simples:v1
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/go-app$
+
+
+-Verificando a imagem buildada agora:
+
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/go-app$ docker image ls
+REPOSITORY                                 TAG       IMAGE ID       CREATED             SIZE
+fernandomj90/go-app-simples                v1        41b88ed002d2   14 seconds ago      674MB
+
+Imagem ficou muito pesada com 674MB.
+Essa imagem ficou pesada pois carrega todo o SDK do Golang, que ele usa para compilar a aplicação.
+
+
+# Usando o Multisage para uma linguagem compilada - Go
+
+- Criando nova imagem Dockerfile usando Multistage, que deixará a imagem mais leve.
+- Iremos usar a imagem do Alpine.
+- Precisamos nomear a imagem usando o "AS", chamaremos ela de "build".
+- No segundo bloco iremos usar a imagem do Alpine, chamando esse stage de "final", usando o "AS".
+- Usaremos o COPY, usando o parametro --from passando o nome do stage do build, iremos pegar o main e jogar no nosso diretório atual.
+- Iremos iniciar a aplicação via CMD, chamando o main.
+
+FROM golang:1.7.3 AS build
+WORKDIR /build
+COPY main.go .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
+
+FROM alpine:latest AS final
+WORKDIR /app/
+COPY --from=build /build/main .
+CMD ["./main"]
+
+
+
+- Buildando a imagem do Go usando Multistage:
+
+docker image build -t fernandomj90/go-app-multistage:v1 .
+
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/go-app$ docker image build -t fernandomj90/go-app-multistage:v1 .
+Sending build context to Docker daemon  3.072kB
+Step 1/8 : FROM golang:1.7.3 AS build
+ ---> ef15416724f6
+Step 2/8 : WORKDIR /build
+ ---> Running in b60f856cd92d
+Removing intermediate container b60f856cd92d
+ ---> 091f8bf64b34
+Step 3/8 : COPY main.go .
+ ---> 27522bbe7996
+Step 4/8 : RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
+ ---> Running in d7319fe40493
+Removing intermediate container d7319fe40493
+ ---> af3ce725e18a
+Step 5/8 : FROM alpine:latest AS final
+latest: Pulling from library/alpine
+59bf1c3509f3: Pull complete
+Digest: sha256:21a3deaa0d32a8057914f36584b5288d2e5ecc984380bc0118285c70fa8c9300
+Status: Downloaded newer image for alpine:latest
+ ---> c059bfaa849c
+Step 6/8 : WORKDIR /app/
+ ---> Running in 9533758db0f1
+Removing intermediate container 9533758db0f1
+ ---> bfa9f02a4d4d
+Step 7/8 : COPY --from=build /build/main .
+ ---> e4c967d52a81
+Step 8/8 : CMD ["./main"]
+ ---> Running in 89b8f44ed53b
+Removing intermediate container 89b8f44ed53b
+ ---> 0ec27ef5a11e
+Successfully built 0ec27ef5a11e
+Successfully tagged fernandomj90/go-app-multistage:v1
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/go-app$
+
+
+- Verificando a nova imagem usando Multistage, ficou muito mais leve:
+
+fernando@debian10x64:~/cursos/kubedev/aula50-Boas-praticas-pra-construcao-de-imagem/go-app$ docker image ls
+REPOSITORY                                 TAG       IMAGE ID       CREATED             SIZE
+fernandomj90/go-app-multistage             v1        0ec27ef5a11e   45 seconds ago      7.22MB
+fernandomj90/go-app-simples                v1        41b88ed002d2   10 minutes ago      674MB
