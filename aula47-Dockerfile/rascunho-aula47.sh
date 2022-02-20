@@ -94,6 +94,7 @@ RUN apt-get update && apt-get install curl --yes && apt-get install vim --yes
 
 
 -Buildando novamente:
+
 docker image build -t ubuntu-curl-file .
 
 fernando@debian10x64:~/cursos/kubedev/aula47-Dockerfile$ docker image build -t ubuntu-curl-file .
@@ -121,6 +122,7 @@ ubuntu-curl-file                    latest    790e2f2efabb   47 seconds ago   18
 
 
 # Efetuando limpeza de imagens com o prune
+
 - Usar o comando "docker image prune" para limpar imagens que estão sem referência
 
 fernando@debian10x64:~/cursos/kubedev/aula47-Dockerfile$ docker image ls
