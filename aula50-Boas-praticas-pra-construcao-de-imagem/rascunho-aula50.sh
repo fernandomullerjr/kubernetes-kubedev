@@ -202,7 +202,11 @@ npm WARN app No license field.
 # COPY vs ADD
 
 - Procurar utilizar sempre o COPY, se não for extrair ou compactar algo.
+<<<<<<< HEAD
 - O ADD faz a mesma coisa, mas tem recurso de extração, pode baixar da internet e jogar na imagem, etc.
+=======
+
+>>>>>>> 90fde0beb98852f9ef638c351483c6aca67e0e84
 
 
 
