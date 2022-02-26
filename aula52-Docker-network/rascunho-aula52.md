@@ -278,3 +278,8 @@ fernando@debian10x64:~$
 
 - Abrindo o endereço no navegador na porta 80, vai abrir a página do NGINX:
 http://192.168.0.113/
+
+
+
+- VER CONFLITOS DO REPO
+- BRANCH teste
