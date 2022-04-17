@@ -35,12 +35,12 @@ docker container run -d -e MONGO_INITDB_ROOT_USERNAME=mongouser -e MONGO_INITDB_
 
 
 - Usando os valores acima, foram preenchidos:
-declarados os volumes e networks ao inicio
-volumes
-networks
-variáveis de ambiente
-ports
-adicionado depends_on, para o serviço de API tentar subir apenas depois que o banco tiver subido
+  declarados os volumes e networks ao inicio
+  volumes
+  networks
+  variáveis de ambiente
+  ports
+  adicionado depends_on, para o serviço de API tentar subir apenas depois que o banco tiver subido
 
 
 # Dockerfile ficou assim:
@@ -97,8 +97,8 @@ Pulling mongodb (mongodb:4.4.3)...
 ERROR: The image for the service you're trying to recreate has been removed. If you continue, volume data could be lost. Consider backing up your data before continuing.
 
 Erros ocorriam devido:
-nome errado do volume declarado no inicio
-nome da imagem errada
+  nome errado do volume declarado no inicio
+  nome da imagem errada
 
 
 
@@ -160,7 +160,7 @@ fernando@debian10x64:~/cursos/kubedev/aula55-Docker-compose/api-produto$
 
 # Testes/Validação
 - Testes via página do Swagger OK.
-http://192.168.0.113:8080/api-docs/#/default/get_api_produto
+    http://192.168.0.113:8080/api-docs/#/default/get_api_produto
 - Testes, validando o cadastro no banco do Mongo, OK.
 
 
@@ -191,15 +191,17 @@ fernando@debian10x64:~/cursos/kubedev/aula55-Docker-compose/api-produto$
 
 Mesmo sem associação de portas, API segue funcionando:
 
+~~~bash
 fernando@debian10x64:~/cursos/kubedev/aula55-Docker-compose/api-produto$ curl -X 'GET' \
 >   'http://192.168.0.113:8080/api/produto' \
 >   -H 'accept: application/json'
 {"product":[{"_id":"621a59699300c1b2741021da","nome":"Geladeira2","preco":5100,"categoria":"Usados","__v":0}],"machine":"75f37ddb2252"}
 fernando@debian10x64:~/cursos/kubedev/aula55-Docker-compose/api-produto$
 fernando@debian10x64:~/cursos/kubedev/aula55-Docker-compose/api-produto$
+~~~
 
 
-
+~~~bash
 curl -X 'POST' \
   'http://192.168.0.113:8080/api/produto' \
   -H 'accept: application/json' \
@@ -210,7 +212,9 @@ curl -X 'POST' \
   "preco": 229800,
   "categoria": "Carros"
 }'
+~~~
 
+~~~bash
 curl -X 'POST' \
   'http://192.168.0.113:8080/api/produto' \
   -H 'accept: application/json' \
@@ -221,8 +225,10 @@ curl -X 'POST' \
   "preco": 113200,
   "categoria": "Carros"
 }'
+~~~
 
 
+~~~bash
 fernando@debian10x64:~/cursos/kubedev/aula55-Docker-compose/api-produto$ curl -X 'GET'   'http://192.168.0.113:8080/api/produto'   -H 'accept: application/json'
 {"product":[{"_id":"621a59699300c1b2741021da","nome":"Geladeira2","preco":5100,"categoria":"Usados","__v":0},{"_id":"621a5c5cdd38bd902b9f4bb4","nome":"Maverick","preco":229800,"categoria":"Carros","__v":0}],"machine":"75f37ddb2252"}
 fernando@debian10x64:~/cursos/kubedev/aula55-Docker-compose/api-produto$
@@ -242,6 +248,7 @@ fernando@debian10x64:~/cursos/kubedev/aula55-Docker-compose/api-produto$
 fernando@debian10x64:~/cursos/kubedev/aula55-Docker-compose/api-produto$ curl -X 'GET'   'http://192.168.0.113:8080/api/produto'   -H 'accept: application/json'
 {"product":[{"_id":"621a59699300c1b2741021da","nome":"Geladeira2","preco":5100,"categoria":"Usados","__v":0},{"_id":"621a5c5cdd38bd902b9f4bb4","nome":"Maverick","preco":229800,"categoria":"Carros","__v":0},{"_id":"621a5c87dd38bd3adf9f4bb7","nome":"Fusion","preco":113200,"categoria":"Carros","__v":0}],"machine":"75f37ddb2252"}fernando@debian10x64:~/cursos/kubedev/aula55-Docker-compose/api-produto$
 fernando@debian10x64:~/cursos/kubedev/aula55-Docker-compose/api-produto$
+~~~
 
 
 - Porém, sem associação de portas, não é possível o acesso via client do Robo3T ao banco do Mongo:
@@ -320,9 +327,9 @@ fernando@debian10x64:~/cursos/kubedev/aula55-Docker-compose/api-produto$
 - Efetuar o build
 docker-compose --env-file ./.env up -d
 
-- ATENÇÃO
-Devido o uso do context, não é necessário passar todo o path para indicar onde está o Dockerfile, já que ele está dentro daquele context.
-sem o context, seria necessário informar ao docker-compose o caminho "./src/Dockerfile".
+- ATENÇÃO!!!!!!
+  Devido o uso do context, não é necessário passar todo o path para indicar onde está o Dockerfile, já que ele está dentro daquele context.
+  sem o context, seria necessário informar ao docker-compose o caminho "./src/Dockerfile".
 
 - Buildando:
 
@@ -379,3 +386,34 @@ Trocar a versão de 1.0.0 para 2.0.0
 - Neste caso, vai ser necessário forçar o build novamente, senão o Docker-compose vai aproveitar o cache local.
 - Use a opção --build para forçar novo build.
 docker-compose --env-file ./.env up -d --build
+
+
+fernando@debian10x64:~/cursos/kubedev/aula55-Docker-compose/api-produto$ docker-compose --env-file ./.env up -d --build
+Building api
+Sending build context to Docker daemon  60.93kB
+Step 1/7 : FROM node:14.15.4
+ ---> 924763541c0c
+Step 2/7 : WORKDIR /app
+ ---> Using cache
+ ---> 8a5b8622b79c
+Step 3/7 : COPY package*.json ./
+ ---> Using cache
+ ---> 33e102d90e1e
+Step 4/7 : RUN npm install
+ ---> Using cache
+ ---> 993b95bb211d
+Step 5/7 : COPY . .
+ ---> fd05e5ab5e5d
+Step 6/7 : EXPOSE 8080
+ ---> Running in 44c781c1bdd9
+Removing intermediate container 44c781c1bdd9
+ ---> a35e72963320
+Step 7/7 : CMD ["node", "app.js"]
+ ---> Running in 727fcbd02451
+Removing intermediate container 727fcbd02451
+ ---> 557c323c1fff
+Successfully built 557c323c1fff
+Successfully tagged fernandomj90/api-produto:v3
+api-produto_mongodb_1 is up-to-date
+Recreating api-produto_api_1 ... done
+fernando@debian10x64:~/cursos/kubedev/aula55-Docker-compose/api-produto$
