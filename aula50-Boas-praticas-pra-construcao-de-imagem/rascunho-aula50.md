@@ -61,10 +61,10 @@ conversao-temperatura                latest    51dd5e18e6bc   About an hour ago 
 # Sempre especifique a tag nas imagens
 - Fazendo a fixação da versão da imagem nós conseguimos garantir o funcionamento do Container de forma igual.
 - Isto preserva a idempotência, que é a garantia que a operação se manterá igual a aplicação inicial.
-" a idempotência é a propriedade que algumas operações têm de poderem ser aplicadas várias vezes sem que o valor do resultado se altere após a aplicação inicial."
-"idempotência, termo muito utilizado na matemática ou em ciência da computação para indicar a propriedade que algumas operações têm de poderem ser aplicadas várias 
-vezes sem que o valor do resultado se altere após a aplicação inicial. Ou seja, uma vez aplicado o seu código terraform, você poderá aplicá-lo quantas vezes 
-desejar e nenhuma alteração será feita em sua infraestrutura, a menos que você tenha de fato alterado algo em seu código."
+    " a idempotência é a propriedade que algumas operações têm de poderem ser aplicadas várias vezes sem que o valor do resultado se altere após a aplicação inicial."
+    "idempotência, termo muito utilizado na matemática ou em ciência da computação para indicar a propriedade que algumas operações têm de poderem ser aplicadas várias 
+    vezes sem que o valor do resultado se altere após a aplicação inicial. Ou seja, uma vez aplicado o seu código terraform, você poderá aplicá-lo quantas vezes 
+    desejar e nenhuma alteração será feita em sua infraestrutura, a menos que você tenha de fato alterado algo em seu código."
 
 - Fixando a versão "14.17.5" do Node no Dockerfile:
 
