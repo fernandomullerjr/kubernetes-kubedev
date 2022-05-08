@@ -218,7 +218,9 @@ fernandomj90/desafio-docker-questao3-python-flask   v1                   cbff91b
 docker container run -p 5001:5000 -d fernandomj90/desafio-docker-questao3-python-flask:v1
 
 
+- Testando novamente, porém a página não ficou acessível:
 
+~~~bash
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$ docker ps
 CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$ docker container run -p 5001:5000 -d fernandomj90/desafio-docker-questao3-python-flask:v1
@@ -243,9 +245,11 @@ curl: (7) Failed to connect to 127.0.0.1 port 5000: Connection refused
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$ curl http://127.0.0.1:5001
 curl: (56) Recv failure: Connection reset by peer
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$
+~~~
 
 
-
+- Ajustado o Dockerfile.
+- Colocado o parametro host, com o ip 0.0.0.0
 
 - DE:
 if __name__ == '__main__':
@@ -263,18 +267,24 @@ cd /home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao
 docker image build -t fernandomj90/desafio-docker-questao3-python-flask:v1 .
 
 
+- Imagem criada:
+
 docker image ls | head
 
+~~~bash
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$ docker image ls | head
 REPOSITORY                                          TAG                  IMAGE ID       CREATED          SIZE
 fernandomj90/desafio-docker-questao3-python-flask   v1                   5de3f6d0d9bd   7 seconds ago    118MB
 <none>                                              <none>               cbff91b65842   15 minutes ago   118MB
+~~~
 
 
+
+- Rodando o Container novamente:
 
 docker container run -p 8080:80 -d fernandomj90/desafio-docker-questao3-python-flask:v1
 
-
+~~~bash
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$ docker ps
 CONTAINER ID   IMAGE                                                  COMMAND           CREATED         STATUS         PORTS                                   NAMES
 64a8844a54a1   fernandomj90/desafio-docker-questao3-python-flask:v1   "python app.py"   4 seconds ago   Up 3 seconds   0.0.0.0:8080->80/tcp, :::8080->80/tcp   zen_brahmagupta
@@ -284,12 +294,14 @@ curl: (56) Recv failure: Connection reset by peer
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$ curl localhost:80
 curl: (7) Failed to connect to localhost port 80: Connection refused
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$
+~~~
 
 
+- Página não ficou acessível pelas portas 8080 ou pela porta 80.
 
+- Apesar disto, a página estava acessível pelo ip especifico do container:
 
-
-
+~~~bash
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$ curl http://172.17.0.2:5000 | head
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
@@ -306,10 +318,9 @@ fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conv
     <meta name="generator" content="Hugo 0.87.0">
     <title>Conversão de Distância</title>
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$
+~~~
 
-
-
-fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$
+~~~bash
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$ docker ps
 CONTAINER ID   IMAGE                                                  COMMAND           CREATED              STATUS              PORTS                                   NAMES
 64a8844a54a1   fernandomj90/desafio-docker-questao3-python-flask:v1   "python app.py"   About a minute ago   Up About a minute   0.0.0.0:8080->80/tcp, :::8080->80/tcp   zen_brahmagupta
@@ -329,3 +340,50 @@ curl: (56) Recv failure: Connection reset by peer
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$ curl localhost:80
 curl: (7) Failed to connect to localhost port 80: Connection refused
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$
+~~~
+
+
+
+
+
+# ###########################################################################################################################################################
+# SOLUÇÃO
+
+<https://forums.docker.com/t/docker-curl-56-recv-failure/54172>
+
+- Como o Python Flask tem por default a porta 5000, foi necessário buildar a imagem com aquele parametro host, normalmente, mas ao lançar o Container é necessário mapear a porta externa desejada(8080, 80, etc), para a porta 5000 do Container, pois a porta default do Python Flask não foi alterada.
+
+- Comandos:
+cd /home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask
+docker container run -p 8080:5000 -d fernandomj90/desafio-docker-questao3-python-flask:v1
+
+~~~bash
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$ curl localhost:8080 | head
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  2701  100  2701    0     0   659k      0 --:--:-- --:--:-- --:--:--  659k
+<!doctype html>
+<html lang="en" class="h-100">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Hugo 0.87.0">
+    <title>Conversão de Distância</title>
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$
+~~~
+
+
+
+
+
+
+
+# PENDENTE
+- Efetuar o Multistage na Dockerfile do Python e Flask.
+<https://www.rockyourcode.com/create-a-multi-stage-docker-build-for-python-flask-and-postgres/>
+- Avaliar boas práticas.
+- Testar e validar.
+- Alimentar o README.
