@@ -387,3 +387,67 @@ fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conv
 - Avaliar boas práticas.
 - Testar e validar.
 - Alimentar o README.
+
+
+
+
+
+# Dia 19/05/2022
+
+- Buildando novamente, com MultiStage:
+cd /home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask
+docker image build -f Dockerfile-multistage -t fernandomj90/desafio-docker-questao3-python-flask-com-multistage:v1 .
+
+
+- Resultou numa imagem grande ainda:
+
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$ docker image ls | head
+REPOSITORY                                                         TAG                  IMAGE ID       CREATED              SIZE
+fernandomj90/desafio-docker-questao3-python-flask-com-multistage   v1                   b5e7572b441a   About a minute ago   118MB
+fernandomj90/desafio-docker-questao3-python-flask                  v1                   5de3f6d0d9bd   11 days ago          118MB
+
+
+
+- Buildando novamente, com MultiStage e VENV:
+cd /home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask
+docker image build -f Dockerfile-teste2 -t fernandomj90/desafio-docker-questao3-python-flask-com-multistage-venv:v1 .
+
+- Foi usada técnica dos sites:
+<https://www.rockyourcode.com/create-a-multi-stage-docker-build-for-python-flask-and-postgres/>
+<https://pythonspeed.com/articles/smaller-python-docker-images/>
+<https://pythonspeed.com/articles/multi-stage-docker-python/>
+
+- Primeira tentativa com VENV, ficou meio pesado:
+
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$ docker image ls | head
+REPOSITORY                                                              TAG                  IMAGE ID       CREATED          SIZE
+fernandomj90/desafio-docker-questao3-python-flask-com-multistage-venv   v1                   3eebf09c18b9   9 minutes ago    214MB
+<none>                                                                  <none>               132450dc091c   9 minutes ago    317MB
+fernandomj90/desafio-docker-questao3-python-flask-com-multistage        v1                   b5e7572b441a   58 minutes ago   118MB
+fernandomj90/desafio-docker-questao3-python-flask                       v1                   5de3f6d0d9bd   11 days ago      118MB
+
+
+
+
+
+- Buildando novamente, com MultiStage e VENV, método 2:
+cd /home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask
+docker image build -f Dockerfile-teste4 -t fernandomj90/desafio-docker-questao3-python-flask-com-multistage-venv-metodo2:v1 .
+
+- Foi usada técnica do site:
+<https://gabnotes.org/lighten-your-python-image-docker-multi-stage-builds/>
+
+- Este método 2(que usa a imagem [python:3.8.6-slim-buster]) ficou mediano, ficou leve, mas não ficou tão leve quanto o Dockerfile original, que usa a imagem de base [python:3.6.1-alpine]:
+
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$ docker image ls | head
+REPOSITORY                                                                      TAG                  IMAGE ID       CREATED             SIZE
+fernandomj90/desafio-docker-questao3-python-flask-com-multistage-venv-metodo2   v1                   3602ad3260de   7 seconds ago       125MB
+<none>                                                                          <none>               e81d3c804586   21 seconds ago      929MB
+
+
+
+# PENDENTE
+- Avaliar se vai ser usado Multistage ou não, visto que não houve ganho neste caso.
+- Avaliar boas práticas.
+- Testar e validar.
+- Alimentar o README.
