@@ -1,0 +1,30 @@
+## Build venv
+FROM python:3.8.6-buster AS venv
+
+WORKDIR /app
+COPY app.py /app.py
+
+# The `--copies` option tells `venv` to copy libs and binaries
+# instead of using links (which could break since we will
+# extract the virtualenv from this image)
+RUN python -m venv --copies /app/venv
+RUN . /app/venv/bin/activate
+
+RUN pip install --upgrade pip
+RUN pip install -U pip setuptools wheel
+RUN pip install markupsafe
+RUN pip install flask
+COPY ./requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
+
+## Beginning of runtime image
+# Remember to use the same python version
+# and the same base distro as the venv image
+FROM python:3.8.6-slim-buster as prod
+
+COPY --from=venv /app/venv /app/venv/
+
+WORKDIR /app
+COPY . ./
+
+CMD ["python","app.py"]

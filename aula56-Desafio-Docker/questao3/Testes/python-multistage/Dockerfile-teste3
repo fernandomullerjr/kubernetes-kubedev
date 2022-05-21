@@ -1,0 +1,33 @@
+# Dockerfile
+# fonte: https://gabnotes.org/lighten-your-python-image-docker-multi-stage-builds/
+## Build venv
+FROM python:3.8.6-buster AS venv
+
+ENV POETRY_VERSION=1.1.4
+RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
+ENV PATH /root/.poetry/bin:$PATH
+
+WORKDIR /app
+COPY pyproject.toml poetry.lock ./
+
+# The `--copies` option tells `venv` to copy libs and binaries
+# instead of using links (which could break since we will
+# extract the virtualenv from this image)
+RUN python -m venv --copies /app/venv
+RUN . /app/venv/bin/activate && poetry install
+
+
+## Beginning of runtime image
+# Remember to use the same python version
+# and the same base distro as the venv image
+FROM python:3.8.6-slim-buster as prod
+
+COPY --from=venv /app/venv /app/venv/
+ENV PATH /app/venv/bin:$PATH
+
+WORKDIR /app
+COPY . ./
+
+HEALTHCHECK --start-period=30s CMD python -c "import requests; requests.get('http://localhost:8000', timeout=2)"
+
+CMD ["gunicorn", "blog.wsgi", "-b 0.0.0.0:8000", "--log-file", "-"]

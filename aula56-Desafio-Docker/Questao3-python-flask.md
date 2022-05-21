@@ -345,7 +345,10 @@ fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conv
 
 
 
-
+# ###########################################################################################################################################################
+# ###########################################################################################################################################################
+# ###########################################################################################################################################################
+# ###########################################################################################################################################################
 # ###########################################################################################################################################################
 # SOLUÇÃO
 
@@ -355,7 +358,7 @@ fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conv
 
 - Comandos:
 cd /home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask
-docker container run -p 8080:5000 -d fernandomj90/desafio-docker-questao3-python-flask:v1
+docker container run -p 8080:5000 -d fernandomj90/desafio-docker-questao3-python-flask:v2
 
 ~~~bash
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$ curl localhost:8080 | head
@@ -451,3 +454,102 @@ fernandomj90/desafio-docker-questao3-python-flask-com-multistage-venv-metodo2   
 - Avaliar boas práticas.
 - Testar e validar.
 - Alimentar o README.
+
+
+
+# Dia 20/05/2022
+
+- Buildando novamente:
+cd /home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask
+docker image build -t fernandomj90/desafio-docker-questao3-python-flask:v2 .
+
+
+- Imagem criada:
+
+docker image ls | head
+
+~~~bash
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$ cd /home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$ docker image build -t fernandomj90/desafio-docker-questao3-python-flask:v2 .
+Sending build context to Docker daemon  66.05kB
+Step 1/11 : FROM python:3.6.1-alpine
+ ---> ddd6300d05a3
+Step 2/11 : RUN pip install --upgrade pip
+---> 977cfd36f4ed
+Step 10/11 : COPY . .
+ ---> 8b83c99a83cb
+Step 11/11 : CMD ["python","app.py"]
+ ---> Running in 74fd3659fb5c
+Removing intermediate container 74fd3659fb5c
+ ---> 334a63c63856
+Successfully built 334a63c63856
+Successfully tagged fernandomj90/desafio-docker-questao3-python-flask:v2
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$
+
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$ docker image ls | head
+REPOSITORY                                                                      TAG                  IMAGE ID       CREATED              SIZE
+fernandomj90/desafio-docker-questao3-python-flask                               v2                   334a63c63856   About a minute ago   118MB
+~~~
+
+
+
+- Rodando o Container novamente:
+cd /home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask
+docker container run -p 8080:5000 -d fernandomj90/desafio-docker-questao3-python-flask:v2
+
+
+
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$ docker login
+Authenticating with existing credentials...
+WARNING! Your password will be stored unencrypted in /home/fernando/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+
+Login Succeeded
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$
+
+
+
+
+
+
+# ###########################################################################################################################################################
+# ###########################################################################################################################################################
+# ###########################################################################################################################################################
+# ###########################################################################################################################################################
+# ###########################################################################################################################################################
+# SOLUÇÃO
+
+<https://forums.docker.com/t/docker-curl-56-recv-failure/54172>
+
+- Como o Python Flask tem por default a porta 5000, foi necessário buildar a imagem com aquele parametro host, normalmente, mas ao lançar o Container é necessário mapear a porta externa desejada(8080, 80, etc), para a porta 5000 do Container, pois a porta default do Python Flask não foi alterada.
+
+- Comandos:
+cd /home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask
+docker container run -p 8080:5000 -d fernandomj90/desafio-docker-questao3-python-flask:v2
+
+~~~bash
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$ docker ps
+CONTAINER ID   IMAGE                                                  COMMAND           CREATED         STATUS         PORTS                                       NAMES
+d3aa5687378d   fernandomj90/desafio-docker-questao3-python-flask:v2   "python app.py"   2 minutes ago   Up 2 minutes   0.0.0.0:8080->5000/tcp, :::8080->5000/tcp   optimistic_cori
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$ curl localhost:8080 | head
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  2701  100  2701    0     0   879k      0 --:--:-- --:--:-- --:--:-- 1318k
+<!doctype html>
+<html lang="en" class="h-100">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Hugo 0.87.0">
+    <title>Conversão de Distância</title>
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/python/conversao-distancia-python-flask$
+~~~
+
