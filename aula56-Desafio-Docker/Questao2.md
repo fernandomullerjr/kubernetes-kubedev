@@ -139,6 +139,7 @@ Server is open to allow connections from anyone (0.0.0.0)
 - Faltava a variável ME_CONFIG_MONGODB_ENABLE_ADMIN e botei uma senha mais simples, sem uso dos caracteres especiais de cifrão.
 
 
+# #######
 - Resposta da questão 2 para o painel web usando Mongo Express para o MongoDB:
 ~~~bash
 docker container run -d --network network_desafio_docker -e ME_CONFIG_MONGODB_SERVER=mongodb -e ME_CONFIG_OPTIONS_EDITORTHEME="ambiance" -e ME_CONFIG_BASICAUTH_USERNAME="fernando" -e ME_CONFIG_MONGODB_AUTH_DATABASE=admin -e ME_CONFIG_BASICAUTH_PASSWORD=senhaparaodesafio -e ME_CONFIG_MONGODB_URL="mongodb://mongo:27017" -e ME_CONFIG_MONGODB_PORT=27017 -e ME_CONFIG_MONGODB_ADMINUSERNAME=mongouser -e ME_CONFIG_MONGODB_ADMINPASSWORD=mongopwd -p 8081:8081 mongo-express
@@ -146,6 +147,8 @@ docker container run -d --network network_desafio_docker -e ME_CONFIG_MONGODB_SE
 
 - Abrindo o painel do Mongo Express no Browser:
 <http://192.168.0.113:8081/>
+
+
 
 
 
