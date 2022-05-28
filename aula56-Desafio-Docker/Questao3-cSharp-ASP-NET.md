@@ -394,3 +394,188 @@ fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/csharp-asp-
 
 # PENDENTE
 - Verificar motivo da falha ao subir container com ASP NET CORE.
+
+
+
+
+# Dia 28/05/2022
+
+- Buildando
+cd /home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao3/csharp-asp-net/conversao-peso/ConversaoPeso.Web
+docker image build -f Dockerfile -t fernandomj90/desafio-docker-questao3-csharp-asp-net:v3 .
+
+- Criando o Container e rodando:
+docker container run -p 7755:80 -d fernandomj90/desafio-docker-questao3-csharp-asp-net:v3
+
+~~~~bash
+
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/csharp-asp-net/conversao-peso/ConversaoPeso.Web$ docker container run -p 7755:80 -d fernandomj90/desafio-docker-questao3-csharp-asp-net:v3
+215922b2a8ba4dc5316358bd8ffda6a482a2686f023293a0b40675bee6229a3e
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/csharp-asp-net/conversao-peso/ConversaoPeso.Web$ docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/csharp-asp-net/conversao-peso/ConversaoPeso.Web$ docker ps -a
+CONTAINER ID   IMAGE                                                    COMMAND                  CREATED         STATUS                       PORTS                                       NAMES
+215922b2a8ba   fernandomj90/desafio-docker-questao3-csharp-asp-net:v3   "dotnet ConversaoPes…"   5 seconds ago   Exited (150) 4 seconds ago                                               jovial_chatelet
+7316f8196d83   fernandomj90/desafio-docker-questao3-csharp-asp-net:v2   "dotnet aspnetapp.dll"   3 days ago      Exited (145) 3 days ago                                                  sad_roentgen
+a71e3947b3ad   e42607688bcf                                             "dotnet DotNet.Docke…"   3 days ago      Exited (145) 3 days ago                                                  keen_bhaskara
+fe6850d04dd6   ed735732506c                                             "/bin/sh -c 'dotnet …"   3 days ago      Exited (1) 3 days ago                                                    busy_ritchie
+7605f7fdc423   e09b00b83aa8                                             "/bin/sh -c 'dotnet …"   3 days ago      Exited (1) 3 days ago                                                    vibrant_bell
+6e67a9d2e4b4   fernandomj90/desafio-docker-questao3-csharp-asp-net:v1   "dotnet DotNet.Docke…"   3 days ago      Exited (145) 3 days ago                                                  clever_bassi
+d3aa5687378d   fernandomj90/desafio-docker-questao3-python-flask:v2     "python app.py"          7 days ago      Exited (255) 3 days ago      0.0.0.0:8080->5000/tcp, :::8080->5000/tcp   optimistic_cori
+e4d4b7cf96a2   ddd6300d05a3                                             "/bin/sh -c 'pip ins…"   2 weeks ago     Exited (1) 2 weeks ago                                                   trusting_jang
+0784ec3f7ae6   ddd6300d05a3                                             "/bin/sh -c 'pip ins…"   2 weeks ago     Exited (1) 2 weeks ago                                                   nice_euler
+3de76aefdde6   ddd6300d05a3                                             "/bin/sh -c 'pip ins…"   2 weeks ago     Exited (1) 2 weeks ago                                                   jovial_raman
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/csharp-asp-net/conversao-peso/ConversaoPeso.Web$ docker logs jovial_chatelet
+It was not possible to find any compatible framework version
+The framework 'Microsoft.AspNetCore.App', version '5.0.0' (x64) was not found.
+  - The following frameworks were found:
+      6.0.5 at [/usr/share/dotnet/shared/Microsoft.AspNetCore.App]
+
+You can resolve the problem by installing the specified framework and/or SDK.
+
+The specified framework can be found at:
+  - https://aka.ms/dotnet-core-applaunch?framework=Microsoft.AspNetCore.App&framework_version=5.0.0&arch=x64&rid=debian.11-x64
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/csharp-asp-net/conversao-peso/ConversaoPeso.Web$
+~~~~
+
+
+
+docker container error It was not possible to find any compatible framework versionThe framework 'Microsoft.AspNetCore.App', version '5.0.0' (x64) was not found.- The following frameworks were found:6.0.5 at [/usr/share/dotnet/shared/Microsoft.AspNetCore.App]You can resolve the problem by installing the specified framework and/or SDK.
+
+
+
+
+- Buildando
+cd /home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao3/csharp-asp-net/conversao-peso/ConversaoPeso.Web
+docker image build -f Dockerfile -t fernandomj90/desafio-docker-questao3-csharp-asp-net:v3 .
+
+- Criando o Container e rodando:
+docker container run -p 7755:80 -d fernandomj90/desafio-docker-questao3-csharp-asp-net:v3
+
+
+- Agora o build usando a versão 5 do SDK e do ASP.NET, o Container ficou online corretamente:
+
+~~~~bash
+
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/csharp-asp-net/conversao-peso/ConversaoPeso.Web$ cd /home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao3/csharp-asp-net/conversao-peso/ConversaoPeso.Web
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/csharp-asp-net/conversao-peso/ConversaoPeso.Web$ docker image build -f Dockerfile -t fernandomj90/desafio-docker-questao3-csharp-asp-net:v3 .
+Sending build context to Docker daemon  4.372MB
+Step 1/9 : FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build-env
+5.0: Pulling from dotnet/sdk
+c1ad9731b2c7: Pull complete
+169ba0027942: Pull complete
+c4c86b92f556: Pull complete
+e76245086e24: Pull complete
+0bf07af7e5b6: Pull complete
+85081c9db788: Pull complete
+5fdeb3a38fe8: Pull complete
+d395fb0767b4: Pull complete
+Digest: sha256:3ff465d940de3e2c727794d92fd7bb649c498d4abd91bc9213ea7831ebf01f1e
+Status: Downloaded newer image for mcr.microsoft.com/dotnet/sdk:5.0
+ ---> 9fec788bd1f9
+Step 2/9 : WORKDIR /app
+ ---> Running in 3c835cdb930e
+Removing intermediate container 3c835cdb930e
+ ---> 76e07d0de738
+Step 3/9 : COPY . ./
+ ---> d33ad81b640a
+Step 4/9 : RUN dotnet restore
+ ---> Running in 2e58ba70bd75
+  Determining projects to restore...
+  Restored /app/ConversaoPeso.Web.csproj (in 109 ms).
+Removing intermediate container 2e58ba70bd75
+ ---> 82b5d843ca2a
+Step 5/9 : RUN dotnet publish -c Release -o out
+ ---> Running in 7ff6c6c33188
+Microsoft (R) Build Engine version 16.11.2+f32259642 for .NET
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  ConversaoPeso.Web -> /app/bin/Release/net5.0/ConversaoPeso.Web.dll
+  ConversaoPeso.Web -> /app/bin/Release/net5.0/ConversaoPeso.Web.Views.dll
+  ConversaoPeso.Web -> /app/out/
+Removing intermediate container 7ff6c6c33188
+ ---> 8ac693e30e3d
+Step 6/9 : FROM mcr.microsoft.com/dotnet/aspnet:5.0
+5.0: Pulling from dotnet/aspnet
+c1ad9731b2c7: Already exists
+169ba0027942: Already exists
+c4c86b92f556: Already exists
+e76245086e24: Already exists
+0bf07af7e5b6: Already exists
+Digest: sha256:1a7d811242f001673d5d25283b3af03da526de1ee8d3bb5aa295f480b7844d44
+Status: Downloaded newer image for mcr.microsoft.com/dotnet/aspnet:5.0
+ ---> 29de1b9e96c0
+Step 7/9 : WORKDIR /app
+ ---> Running in 8184dddf672a
+Removing intermediate container 8184dddf672a
+ ---> 5c1f4746b157
+Step 8/9 : COPY --from=build-env /app/out .
+ ---> 19aae944c5b9
+Step 9/9 : ENTRYPOINT ["dotnet", "ConversaoPeso.Web.dll"]
+ ---> Running in 06c85d8f0a78
+Removing intermediate container 06c85d8f0a78
+ ---> ed71f64133f8
+Successfully built ed71f64133f8
+Successfully tagged fernandomj90/desafio-docker-questao3-csharp-asp-net:v3
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/csharp-asp-net/conversao-peso/ConversaoPeso.Web$ ^C
+
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/csharp-asp-net/conversao-peso/ConversaoPeso.Web$ docker container run -p 7755:80 -d fernandomj90/desafio-docker-questao3-csharp-asp-net:v3
+0703bb6e2e77a9211941cb281537329df3e9f84f10fd2d56587717b268c66ab0
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/csharp-asp-net/conversao-peso/ConversaoPeso.Web$ docker ps
+CONTAINER ID   IMAGE                                                    COMMAND                  CREATED         STATUS        PORTS                                   NAMES
+0703bb6e2e77   fernandomj90/desafio-docker-questao3-csharp-asp-net:v3   "dotnet ConversaoPes…"   2 seconds ago   Up 1 second   0.0.0.0:7755->80/tcp, :::7755->80/tcp   clever_dubinsky
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/csharp-asp-net/conversao-peso/ConversaoPeso.Web$
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao3/csharp-asp-net/conversao-peso/ConversaoPeso.Web$
+~~~~
+
+
+
+
+
+- Ficou ok.
+- Ajustando o README.
+
+# conversao-peso
+Questao 3 do Desafio Docker - Curso KubeDev - Aplicação escrita em C# utilizando ASP.NET Core
+
+
+
+# ########################################################################################################################################
+# Aplicação escrita em C# utilizando ASP.NET Core
+
+- Endereço do repositório:
+<https://github.com/fernandomullerjr/conversao-peso>
+
+- Para criação da imagem Docker foram usadas algumas boas práticas aprendidas no curso até o momento, como:
+
+* Nomear a imagem Docker
+* Evitar usar imagens não-oficiais de origem duvidosa
+* Sempre especificar a tag nas imagens
+* Um processo por Container
+* Multistage Build
+
+- A versão final do Dockerfile ficou assim:
+
+~~~Dockerfile
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build-env
+WORKDIR /app
+COPY . ./
+RUN dotnet restore
+RUN dotnet publish -c Release -o out
+
+FROM mcr.microsoft.com/dotnet/aspnet:5.0
+WORKDIR /app
+COPY --from=build-env /app/out .
+ENTRYPOINT ["dotnet", "ConversaoPeso.Web.dll"]
+~~~
+
+
+- Observações:
+Para o ENTRYPOINT funcionar corretamente, foi necessário nomear o arquivo com extensão dll com o mesmo nome do arquivo com extensão csproj.
+Como o arquivo [ConversaoPeso.Web.csproj] está com a versão do NET 5.0 setada de forma fixa, foi necessário usar a versão 5 da imagem do aspnet e do SDK, para que o Container subisse corretamente.
+
+- Comandos utilizados para buildar a imagem e subir o Container:
+docker image build -f Dockerfile -t fernandomj90/desafio-docker-questao3-csharp-asp-net:v3 .
+docker container run -p 7755:80 -d fernandomj90/desafio-docker-questao3-csharp-asp-net:v3
