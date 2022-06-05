@@ -717,10 +717,11 @@ RUN pip install --upgrade Pillow
 
 - Usei esta solução:
 <https://stackoverflow.com/questions/57787424/django-docker-python-unable-to-install-pillow-on-python-alpine>
+~~~~Dockerfile
 RUN apk add --no-cache jpeg-dev zlib-dev
 RUN apk add --no-cache --virtual .build-deps build-base linux-headers \
     && pip install Pillow
-
+~~~~
 
 
 
@@ -1079,7 +1080,7 @@ ModuleNotFoundError: No module named 'wsgi'
 
 
 
-A principio o erro tem relação com o Dockerfile, na parte do CMD
+- A principio o erro tem relação com o Dockerfile, na parte do CMD
 CMD [ "gunicorn", "-w", "4", "--bind", "0.0.0.0:5000", "wsgi"]
 
 
@@ -1095,7 +1096,7 @@ CMD [ "gunicorn", "-w", "4", "--bind", "0.0.0.0:5000", "app"]
 <https://www.digitalocean.com/community/tutorials/how-to-set-up-flask-with-mongodb-and-docker-pt>
 
 
-
+~~~~bash
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$ docker-compose down
 Stopping webserver ... done
 Stopping flask     ... done
@@ -1106,9 +1107,10 @@ Removing mongodb   ... done
 Removing network rotten-potatoes_backend
 Removing network rotten-potatoes_frontend
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$
+~~~~
 
 
-
+~~~~bash
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$ docker-compose up -d
 Creating network "rotten-potatoes_backend" with driver "bridge"
 Creating network "rotten-potatoes_frontend" with driver "bridge"
@@ -1116,22 +1118,24 @@ Creating mongodb ... done
 Creating flask   ... done
 Creating webserver ... done
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$ ^C
+~~~~
 
 
 
-
+~~~~bash
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$ docker ps
 CONTAINER ID   IMAGE                                             COMMAND                  CREATED          STATUS                         PORTS                                                                      NAMES
 95135119c261   fernandomj90/nginx-alpine-desafio-docker:3.15.4   "nginx -g 'daemon of…"   44 seconds ago   Up 42 seconds                  0.0.0.0:80->80/tcp, :::80->80/tcp, 0.0.0.0:443->443/tcp, :::443->443/tcp   webserver
 6f26bf1f4497   fernandomj90/flask-python:3.6.1                   "gunicorn -w 4 --bin…"   45 seconds ago   Restarting (3) 8 seconds ago                                                                              flask
 7341dc09131f   mongo:4.0.8                                       "docker-entrypoint.s…"   45 seconds ago   Up 44 seconds                  0.0.0.0:27017->27017/tcp, :::27017->27017/tcp                              mongodb
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$
+~~~~
 
 
 
 
 - SEGUE O ERRO
-
+~~~~bash
 [2022-05-29 21:23:25 +0000] [10] [INFO] Worker exiting (pid: 10)
 [2022-05-29 21:23:25 +0000] [1] [INFO] Shutting down: Master
 [2022-05-29 21:23:25 +0000] [1] [INFO] Reason: Worker failed to boot.
@@ -1165,31 +1169,28 @@ ModuleNotFoundError: No module named 'wsgi'
 [2022-05-29 21:23:39 +0000] [1] [INFO] Shutting down: Master
 [2022-05-29 21:23:39 +0000] [1] [INFO] Reason: Worker failed to boot.
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$
+~~~~
 
 
 
 
 
 - acredito que seja cache
-
-
+~~~~bash
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$ docker image ls | head
 REPOSITORY                                                                      TAG                  IMAGE ID       CREATED          SIZE
 fernandomj90/nginx-alpine-desafio-docker                                        3.15.4               123c9e84ef76   17 minutes ago   7.01MB
 fernandomj90/flask-python                                                       3.6.1                29de32765a13   17 minutes ago   367MB
+~~~~
 
 
 
 
 - Usar o --no-cache
-
-
 docker-compose up -d --no-cache
 docker-compose build --no-cache
 
-
-
-
+~~~~bash
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$ ^C
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$ docker-compose build --no-cache
 mongodb uses an image, skipping
@@ -1518,6 +1519,7 @@ Removing intermediate container ab5708246262
 Successfully built 4972dd3ea954
 Successfully tagged fernandomj90/nginx-alpine-desafio-docker:3.15.4
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$
+~~~~
 
 
 
@@ -1525,11 +1527,12 @@ fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-pota
 
 
 - Novas imagens:
-
+~~~~bash
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$ docker image ls | head
 REPOSITORY                                                                      TAG                  IMAGE ID       CREATED          SIZE
 fernandomj90/nginx-alpine-desafio-docker                                        3.15.4               4972dd3ea954   44 seconds ago   7.01MB
 fernandomj90/flask-python                                                       3.6.1                379ee9031720   48 seconds ago   367MB
+~~~~
 
 
 
@@ -1538,9 +1541,7 @@ fernandomj90/flask-python                                                       
 docker-compose up --force-recreate
 docker-compose up -d --force-recreate
 
-
-
-
+~~~~bash
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$ docker-compose up -d --force-recreate
 Creating network "rotten-potatoes_backend" with driver "bridge"
 Creating network "rotten-potatoes_frontend" with driver "bridge"
@@ -1556,7 +1557,7 @@ d095e0eb893c   fernandomj90/nginx-alpine-desafio-docker:3.15.4   "nginx -g 'daem
 28ef62db8708   fernandomj90/flask-python:3.6.1                   "gunicorn -w 4 --bin…"   5 seconds ago   Restarting (3) Less than a second ago                                                                              flask
 b81394c6e158   mongo:4.0.8                                       "docker-entrypoint.s…"   5 seconds ago   Up 4 seconds                            0.0.0.0:27017->27017/tcp, :::27017->27017/tcp                              mongodb
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$
-
+~~~~
 
 
 
@@ -1564,7 +1565,7 @@ fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-pota
 
 
 - Segue com erro, mesmo após ajustar o nome de wsgi para app no Dockerfile do Python:
-
+~~~~bash
 [2022-05-29 21:29:52 +0000] [10] [INFO] Worker exiting (pid: 10)
 [2022-05-29 21:29:52 +0000] [11] [INFO] Booting worker with pid: 11
 [2022-05-29 21:29:52 +0000] [11] [ERROR] Exception in worker process
@@ -1593,6 +1594,7 @@ ModuleNotFoundError: No module named 'app'
 [2022-05-29 21:29:52 +0000] [1] [INFO] Shutting down: Master
 [2022-05-29 21:29:52 +0000] [1] [INFO] Reason: Worker failed to boot.
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$
+~~~~
 
 
 
@@ -1600,3 +1602,258 @@ fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-pota
 # PENDENTE
 - Ajustar o problema no container do Flask.
 - Otimizar a imagem do Python/Flask.
+
+
+
+
+# Dia 05/06/2022
+
+- Derrubando containers:
+cd /home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes
+docker-compose down
+
+
+- Ajustado o Dockerfile do Flask
+DE:
+CMD [ "gunicorn", "-w", "4", "--bind", "0.0.0.0:5000", "app"]
+PARA:
+CMD [ "gunicorn", "-w", "4", "--bind", "0.0.0.0:5000", "./src/app.py"]
+
+- Usar o --no-cache
+docker-compose build --no-cache
+docker-compose up -d
+
+- ERRO no container do flask:
+~~~~bash
+[2022-06-05 21:32:38 +0000] [10] [INFO] Worker exiting (pid: 10)
+[2022-06-05 21:32:38 +0000] [11] [INFO] Booting worker with pid: 11
+[2022-06-05 21:32:38 +0000] [11] [ERROR] Exception in worker process
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.6/site-packages/gunicorn/arbiter.py", line 583, in spawn_worker
+    worker.init_process()
+  File "/usr/local/lib/python3.6/site-packages/gunicorn/workers/base.py", line 119, in init_process
+    self.load_wsgi()
+  File "/usr/local/lib/python3.6/site-packages/gunicorn/workers/base.py", line 144, in load_wsgi
+    self.wsgi = self.app.wsgi()
+  File "/usr/local/lib/python3.6/site-packages/gunicorn/app/base.py", line 67, in wsgi
+    self.callable = self.load()
+  File "/usr/local/lib/python3.6/site-packages/gunicorn/app/wsgiapp.py", line 49, in load
+    return self.load_wsgiapp()
+  File "/usr/local/lib/python3.6/site-packages/gunicorn/app/wsgiapp.py", line 39, in load_wsgiapp
+    return util.import_app(self.app_uri)
+  File "/usr/local/lib/python3.6/site-packages/gunicorn/util.py", line 358, in import_app
+    mod = importlib.import_module(module)
+  File "/usr/local/lib/python3.6/importlib/__init__.py", line 121, in import_module
+    raise TypeError(msg.format(name))
+TypeError: the 'package' argument is required to perform a relative import for './src/app.py'
+[2022-06-05 21:32:38 +0000] [11] [INFO] Worker exiting (pid: 11)
+[2022-06-05 21:32:38 +0000] [1] [INFO] Shutting down: Master
+[2022-06-05 21:32:38 +0000] [1] [INFO] Reason: Worker failed to boot.
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$
+~~~~
+
+
+
+
+
+- Ajustado o Dockerfile do Flask
+DE:
+CMD [ "gunicorn", "-w", "4", "--bind", "0.0.0.0:5000", "./src/app.py"]
+PARA:
+CMD [ "gunicorn", "-w", "4", "--bind", "0.0.0.0:5000", "app:app"]
+
+
+- Usar o --no-cache
+docker-compose build --no-cache
+docker-compose up -d
+
+
+~~~~bash
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$ docker inspect flask
+[
+    {
+        "Id": "bd063cd3f8f887e9adbb29bd7c08053d6cb1cdf7974a42c0c0199d0019a6879a",
+        "Created": "2022-06-05T21:42:29.324041373Z",
+        "Path": "gunicorn",
+        "Args": [
+            "-w",
+            "4",
+            "--bind",
+            "0.0.0.0:5000",
+            "./src/app.py"
+~~~~
+
+
+
+~~~~bash
+[2022-06-05 21:48:12 +0000] [10] [INFO] Worker exiting (pid: 10)
+[2022-06-05 21:48:12 +0000] [1] [INFO] Shutting down: Master
+[2022-06-05 21:48:12 +0000] [1] [INFO] Reason: Worker failed to boot.
+[2022-06-05 21:48:16 +0000] [1] [INFO] Starting gunicorn 20.0.4
+[2022-06-05 21:48:16 +0000] [1] [INFO] Listening at: http://0.0.0.0:5000 (1)
+[2022-06-05 21:48:16 +0000] [1] [INFO] Using worker: sync
+[2022-06-05 21:48:16 +0000] [10] [INFO] Booting worker with pid: 10
+[2022-06-05 21:48:16 +0000] [10] [ERROR] Exception in worker process
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.6/site-packages/gunicorn/arbiter.py", line 583, in spawn_worker
+    worker.init_process()
+  File "/usr/local/lib/python3.6/site-packages/gunicorn/workers/base.py", line 119, in init_process
+    self.load_wsgi()
+  File "/usr/local/lib/python3.6/site-packages/gunicorn/workers/base.py", line 144, in load_wsgi
+    self.wsgi = self.app.wsgi()
+  File "/usr/local/lib/python3.6/site-packages/gunicorn/app/base.py", line 67, in wsgi
+    self.callable = self.load()
+  File "/usr/local/lib/python3.6/site-packages/gunicorn/app/wsgiapp.py", line 49, in load
+    return self.load_wsgiapp()
+  File "/usr/local/lib/python3.6/site-packages/gunicorn/app/wsgiapp.py", line 39, in load_wsgiapp
+    return util.import_app(self.app_uri)
+  File "/usr/local/lib/python3.6/site-packages/gunicorn/util.py", line 358, in import_app
+    mod = importlib.import_module(module)
+  File "/usr/local/lib/python3.6/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 978, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 961, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 948, in _find_and_load_unlocked
+ModuleNotFoundError: No module named 'app'
+[2022-06-05 21:48:16 +0000] [10] [INFO] Worker exiting (pid: 10)
+[2022-06-05 21:48:16 +0000] [1] [INFO] Shutting down: Master
+[2022-06-05 21:48:16 +0000] [1] [INFO] Reason: Worker failed to boot.
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$
+~~~~
+
+
+
+
+
+
+
+To change to the project folder you can use the command --chdir.
+Example:
+gunicorn -w 2 -b 0.0.0.0:8000 --chdir /code/myproject myproject.wsgi
+
+
+- AJUSTANDO O DOCKERFILE:
+DE:
+CMD [ "gunicorn", "-w", "4", "--bind", "0.0.0.0:5000", "app:app"]
+PARA:
+CMD [ "gunicorn", "-w", "4", "--bind", "0.0.0.0:5000", "--chdir /app" , "app:app"]
+
+
+- Derrubando containers:
+cd /home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes
+docker-compose down
+
+- Usar o --no-cache
+docker-compose build --no-cache
+docker-compose up -d
+
+
+- CONTINUA O ERRO:
+~~~~bash
+ModuleNotFoundError: No module named 'app'
+[2022-06-05 21:48:16 +0000] [10] [INFO] Worker exiting (pid: 10)
+[2022-06-05 21:48:16 +0000] [1] [INFO] Shutting down: Master
+[2022-06-05 21:48:16 +0000] [1] [INFO] Reason: Worker failed to boot.
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$
+~~~~
+
+
+
+
+- AJUSTANDO O DOCKERFILE:
+DE:
+COPY ./ .
+PARA:
+COPY ./src .
+
+
+- Derrubando containers:
+cd /home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes
+docker-compose down
+
+- Usar o --no-cache
+docker-compose build --no-cache
+docker-compose up -d
+docker ps
+
+- CONTINUA O ERRO:
+~~~~bash
+ModuleNotFoundError: No module named 'app'
+[2022-06-05 22:18:14 +0000] [10] [INFO] Worker exiting (pid: 10)
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$
+~~~~
+
+
+
+
+
+- AJUSTANDO O DOCKERFILE:
+DE:
+COPY ./src/app.py /app.py
+PARA:
+COPY ./src/app.py /app/app.py
+
+- Derrubando containers:
+cd /home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes
+docker-compose down
+
+- Usar o --no-cache
+docker-compose build --no-cache
+docker-compose up -d
+docker ps
+
+- CONTINUA O ERRO:
+~~~~bash
+ModuleNotFoundError: No module named 'app'
+[2022-06-05 22:24:35 +0000] [9] [INFO] Worker exiting (pid: 9)
+[2022-06-05 22:24:35 +0000] [1] [INFO] Shutting down: Master
+[2022-06-05 22:24:35 +0000] [1] [INFO] Reason: Worker failed to boot.
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$
+~~~~
+
+
+
+
+- AJUSTANDO O DOCKERFILE:
+DE:
+CMD [ "gunicorn", "-w", "4", "--bind", "0.0.0.0:5000", "app:app"]
+PARA:
+CMD [ "gunicorn", "-w", "4", "--bind", "0.0.0.0:5000", "app.wsgi_app"]
+
+- Derrubando containers:
+cd /home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes
+docker-compose down
+
+- Usar o --no-cache
+docker-compose build --no-cache
+docker-compose up -d
+docker ps
+
+- CONTINUA O ERRO:
+~~~~bash
+ModuleNotFoundError: No module named 'app'
+[2022-06-05 22:34:57 +0000] [9] [INFO] Worker exiting (pid: 9)
+[2022-06-05 22:34:57 +0000] [1] [INFO] Shutting down: Master
+[2022-06-05 22:34:57 +0000] [1] [INFO] Reason: Worker failed to boot.
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$
+~~~~
+
+
+
+
+# Tentar isto:
+
+https://stackoverflow.com/questions/22711087/flask-importerror-no-module-named-app
+Ensure to set your PYTHONPATH to the src/ directory as well. Example export PYTHONPATH="$PYTHONPATH:/path/to/your/src"
+Share
+Edit
+Follow
+answered Apr 4, 2019 at 19:54
+user avatar
+ckjavi70
+13822 silver badges1010 bronze badges
+    Thanks, yes, I'm using flask boilerplate and this what actually helped export PYTHONPATH="$PYTHONPATH:/var/gx/app"
+
+
+- Também tentar seguir orientações da DOC do Gunicorn:
+<https://docs.gunicorn.org/en/stable/run.html#gunicorn>
