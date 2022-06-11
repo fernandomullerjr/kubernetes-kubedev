@@ -1841,19 +1841,244 @@ fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-pota
 
 
 
+- Detalhes como é nomeado o module do Gunicorn
+<https://stackoverflow.com/questions/62334493/getting-modulenotfounderror-no-module-named-app-when-deploying-flask-app-to>
+From the gunicorn docs, it should be:
+    $ gunicorn [OPTIONS] APP_MODULE
+    Where APP_MODULE is of the pattern $(MODULE_NAME):$(VARIABLE_NAME). The module name can be a full dotted path. The variable name refers to a WSGI callable that should be found in the specified module.
+Since you defined your Flask app instance (app = Flask(__name__)) inside main.py then your module name is main (not app), so your Procfile should contain:
+    web: gunicorn -b :$PORT main:app
+
+
+# PENDENTE
+- Ajustar o problema no container do Flask.
+- Avaliar se o problema pode estar ocorrendo devido o COPY dos arquivos e o container não ter o arquivo app.py.
+- Avaliar contexto do Docker-compose e Dockerfile, cópia dos arquivos, etc
+- Efetuar teste sem Docker-compose, buildando só via Dockerfile no braço, para avaliar se o contexto está atrapalhando.
+- Otimizar a imagem do Python/Flask.
 # Tentar isto:
 
 https://stackoverflow.com/questions/22711087/flask-importerror-no-module-named-app
 Ensure to set your PYTHONPATH to the src/ directory as well. Example export PYTHONPATH="$PYTHONPATH:/path/to/your/src"
-Share
-Edit
-Follow
-answered Apr 4, 2019 at 19:54
-user avatar
-ckjavi70
-13822 silver badges1010 bronze badges
-    Thanks, yes, I'm using flask boilerplate and this what actually helped export PYTHONPATH="$PYTHONPATH:/var/gx/app"
-
+    Thanks, yes, I'm using flask boilerplate and this what actually helped 
+        export PYTHONPATH="$PYTHONPATH:/var/gx/app"
 
 - Também tentar seguir orientações da DOC do Gunicorn:
 <https://docs.gunicorn.org/en/stable/run.html#gunicorn>
+
+- Outra opção:
+<https://stackoverflow.com/questions/43728431/relative-imports-modulenotfounderror-no-module-named-x>
+You have to append your project's path to PYTHONPATH and make sure to use absolute imports.
+For UNIX (Linux, OSX, ...)
+    export PYTHONPATH="${PYTHONPATH}:/path/to/your/project/"
+
+
+
+
+
+
+# Dia 11/06/2022
+
+
+- Derrubando containers:
+cd /home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes
+docker-compose down
+
+- Ajustados os Dockerfiles do NGINX e do FLASK.
+- Ajustado o docker-compose.yml
+- Seguindo projeto do Faizan Bashir.
+<https://github.com/faizanbashir/flask-gunicorn-nginx-docker>
+
+
+- Usar o --no-cache
+docker-compose build --no-cache
+docker-compose up -d
+docker ps
+
+
+192.168.0.113:9000
+
+
+- Segue com erro, mesmo com os ajustes efetuados em relação a contexto, docker-compose, Dockerfile, etc:
+
+~~~~bash
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$ docker ps
+CONTAINER ID   IMAGE                                             COMMAND                  CREATED          STATUS                         PORTS                                                                      NAMES
+1558d9860bd1   fernandomj90/nginx-alpine-desafio-docker:3.15.4   "nginx -g 'daemon of…"   26 seconds ago   Up 24 seconds                  0.0.0.0:80->80/tcp, :::80->80/tcp, 0.0.0.0:443->443/tcp, :::443->443/tcp   webserver
+af24e5406414   fernandomj90/flask-python:3.6.1                   "gunicorn -w 4 --bin…"   27 seconds ago   Restarting (3) 5 seconds ago                                                                              flask
+3e5174af78b7   mongo:4.0.8                                       "docker-entrypoint.s…"   28 seconds ago   Up 27 seconds                  0.0.0.0:27017->27017/tcp, :::27017->27017/tcp                              mongodb
+4e0cc1b8a495   portainer/portainer                               "/portainer"             5 minutes ago    Up 5 minutes                   0.0.0.0:9000->9000/tcp, :::9000->9000/tcp                                  frosty_easley
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$ date
+Sat 11 Jun 2022 12:03:32 PM -03
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$
+
+
+[2022-06-11 15:32:15 +0000] [8] [INFO] Worker exiting (pid: 8)
+[2022-06-11 15:32:15 +0000] [1] [INFO] Shutting down: Master
+[2022-06-11 15:32:15 +0000] [1] [INFO] Reason: Worker failed to boot.
+[2022-06-11 15:32:17 +0000] [1] [INFO] Starting gunicorn 20.0.4
+[2022-06-11 15:32:17 +0000] [1] [INFO] Listening at: http://0.0.0.0:5000 (1)
+[2022-06-11 15:32:17 +0000] [1] [INFO] Using worker: sync
+[2022-06-11 15:32:17 +0000] [9] [INFO] Booting worker with pid: 9
+[2022-06-11 15:32:17 +0000] [9] [ERROR] Exception in worker process
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.6/site-packages/gunicorn/arbiter.py", line 583, in spawn_worker
+    worker.init_process()
+  File "/usr/local/lib/python3.6/site-packages/gunicorn/workers/base.py", line 119, in init_process
+    self.load_wsgi()
+  File "/usr/local/lib/python3.6/site-packages/gunicorn/workers/base.py", line 144, in load_wsgi
+    self.wsgi = self.app.wsgi()
+  File "/usr/local/lib/python3.6/site-packages/gunicorn/app/base.py", line 67, in wsgi
+    self.callable = self.load()
+  File "/usr/local/lib/python3.6/site-packages/gunicorn/app/wsgiapp.py", line 49, in load
+    return self.load_wsgiapp()
+  File "/usr/local/lib/python3.6/site-packages/gunicorn/app/wsgiapp.py", line 39, in load_wsgiapp
+    return util.import_app(self.app_uri)
+  File "/usr/local/lib/python3.6/site-packages/gunicorn/util.py", line 358, in import_app
+    mod = importlib.import_module(module)
+  File "/usr/local/lib/python3.6/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 994, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 971, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 953, in _find_and_load_unlocked
+ModuleNotFoundError: No module named 'wsgi'
+[2022-06-11 15:32:17 +0000] [9] [INFO] Worker exiting (pid: 9)
+[2022-06-11 15:32:17 +0000] [1] [INFO] Shutting down: Master
+[2022-06-11 15:32:17 +0000] [1] [INFO] Reason: Worker failed to boot.
+
+~~~~
+
+
+
+
+
+
+
+-Novos ajustes.
+- Ajustado arquivo app.py.
+- Criado arquivo wsgi.py
+- Ajustado o Dockerfile do flask.
+
+
+- Testando a seguinte configuração no appy.py:
+~~~~python
+# Nova configuração
+if __name__ == "__main__":
+    ENVIRONMENT_DEBUG = os.environ.get("APP_DEBUG", True)
+    ENVIRONMENT_PORT = os.environ.get("APP_PORT", 5000)
+    app.run(host='0.0.0.0', port=ENVIRONMENT_PORT, debug=ENVIRONMENT_DEBUG)
+~~~~
+
+
+- Testando a seguinte configuração no wsgi.py:
+
+~~~~python
+from app import app
+
+if __name__ == "__main__":
+	app.run()
+~~~~
+
+- Derrubando containers:
+cd /home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes
+docker-compose down
+
+
+- Usar o --no-cache
+docker-compose build --no-cache
+docker-compose up -d
+docker ps
+
+
+
+
+
+
+- Adicionado ao Dockerfile:
+  RUN export PYTHONPATH="$PYTHONPATH:/app"
+
+- Derrubando containers:
+cd /home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes
+docker-compose down
+
+
+- Usar o --no-cache
+docker-compose build --no-cache
+docker-compose up -d
+docker ps
+
+
+- NÃO RESOLVEU.
+
+
+
+
+
+
+
+
+
+- Assim também não funcionou:
+
+~~~~Dockerfile
+FROM python:3.6.12-alpine
+
+COPY requirements.txt /
+RUN pip3 install -r /requirements.txt
+
+COPY . /app
+WORKDIR /app
+
+ENTRYPOINT ["./gunicorn.sh"]
+~~~~
+
+
+
+
+
+
+
+- Assim também não funcionou:
+
+~~~~Dockerfile
+FROM python:3.6.12-alpine
+
+RUN apk add --no-cache jpeg-dev zlib-dev
+RUN apk add --no-cache --virtual .build-deps build-base linux-headers \
+    && pip install Pillow
+
+RUN pip install --upgrade pip
+RUN pip install -U pip setuptools wheel
+RUN pip install markupsafe
+RUN pip install flask
+RUN pip install gunicorn
+
+COPY requirements.txt /
+RUN pip3 install -r /requirements.txt
+
+COPY . /app
+WORKDIR /app
+
+ENTRYPOINT ["./gunicorn.sh"]
+~~~~
+
+
+
+- ERRO
+
+~~~~bash
+Successfully built 080e2de5a872
+Successfully tagged fernandomj90/nginx-alpine-desafio-docker:3.15.4
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$ docker-compose up -d
+Creating mongodb ... done
+Creating flask   ... error
+
+ERROR: for flask  Cannot start service flask: OCI runtime create failed: container_linux.go:380: starting container process caused: exec: "./gunicorn.sh": stat ./gunicorn.sh: no such file or directory: unknown
+
+ERROR: for flask  Cannot start service flask: OCI runtime create failed: container_linux.go:380: starting container process caused: exec: "./gunicorn.sh": stat ./gunicorn.sh: no such file or directory: unknown
+ERROR: Encountered errors while bringing up the project.
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$ docker ps
+
+~~~~
