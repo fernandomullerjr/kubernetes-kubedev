@@ -2082,3 +2082,204 @@ ERROR: Encountered errors while bringing up the project.
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$ docker ps
 
 ~~~~
+
+
+
+
+
+
+
+
+
+# Dia 14/06/2022
+
+
+
+- Derrubando containers:
+cd /home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes
+docker-compose down
+
+
+- Usar o --no-cache
+docker ps
+docker-compose build --no-cache
+docker-compose up -d
+docker ps
+
+
+
+
+
+
+- NOVO ERRO, após comentar o VOLUME do flask no docker-compose yaml
+
+~~~~bash
+
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes/novo-rotten/rotten-potatoes$ docker ps -a
+CONTAINER ID   IMAGE                                         COMMAND                  CREATED          STATUS                       PORTS                                                                      NAMES
+c41708306744   fernandomj90/nginx-alpine-desafio-docker:v2   "nginx -g 'daemon of…"   46 seconds ago   Up 45 seconds                0.0.0.0:80->80/tcp, :::80->80/tcp, 0.0.0.0:443->443/tcp, :::443->443/tcp   webserver
+cc74b881922e   fernandomj90/rotten-potatoes:v2               "gunicorn -c config.…"   47 seconds ago   Exited (1) 14 seconds ago                                                                               flask
+57503ae72812   mongo:5.0.5                                   "docker-entrypoint.s…"   48 seconds ago   Exited (14) 45 seconds ago                                                                              mongodb
+1643d6b458ad   c31214732282                                  "/bin/sh -c 'pip3 in…"   10 minutes ago   Exited (1) 10 minutes ago                                                                               vibrant_borg
+5b6a8d375126   7be1693d4a75                                  "/bin/sh -c 'pip3 in…"   3 days ago       Exited (1) 3 days ago                                                                                   loving_heisenberg
+8035ad23d47a   7be1693d4a75                                  "/bin/sh -c 'pip3 in…"   3 days ago       Exited (1) 3 days ago                                                                                   recursing_agnesi
+4e0cc1b8a495   portainer/portainer                           "/portainer"             3 days ago       Up 57 minutes                0.0.0.0:9000->9000/tcp, :::9000->9000/tcp                                  frosty_easley
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes/novo-rotten/rotten-potatoes$ docker logs flask
+[2022-06-15 02:30:39 +0000] [1] [INFO] Starting gunicorn 20.0.4
+Traceback (most recent call last):
+  File "/usr/local/bin/gunicorn", line 8, in <module>
+    sys.exit(run())
+  File "/usr/local/lib/python3.10/site-packages/gunicorn/app/wsgiapp.py", line 58, in run
+    WSGIApplication("%(prog)s [OPTIONS] [APP_MODULE]").run()
+  File "/usr/local/lib/python3.10/site-packages/gunicorn/app/base.py", line 228, in run
+    super().run()
+  File "/usr/local/lib/python3.10/site-packages/gunicorn/app/base.py", line 72, in run
+    Arbiter(self).run()
+  File "/usr/local/lib/python3.10/site-packages/gunicorn/arbiter.py", line 198, in run
+    self.start()
+  File "/usr/local/lib/python3.10/site-packages/gunicorn/arbiter.py", line 138, in start
+    self.cfg.on_starting(self)
+  File "/app/config.py", line 24, in on_starting
+    if not collection.find().count() > 0:
+  File "/usr/local/lib/python3.10/site-packages/pymongo/cursor.py", line 822, in count
+    return self.__collection._count(
+  File "/usr/local/lib/python3.10/site-packages/pymongo/collection.py", line 1664, in _count
+    return self.__database.client._retryable_read(
+  File "/usr/local/lib/python3.10/site-packages/pymongo/mongo_client.py", line 1460, in _retryable_read
+    server = self._select_server(
+  File "/usr/local/lib/python3.10/site-packages/pymongo/mongo_client.py", line 1278, in _select_server
+    server = topology.select_server(server_selector)
+  File "/usr/local/lib/python3.10/site-packages/pymongo/topology.py", line 241, in select_server
+    return random.choice(self.select_servers(selector,
+  File "/usr/local/lib/python3.10/site-packages/pymongo/topology.py", line 199, in select_servers
+    server_descriptions = self._select_servers_loop(
+  File "/usr/local/lib/python3.10/site-packages/pymongo/topology.py", line 215, in _select_servers_loop
+    raise ServerSelectionTimeoutError(
+pymongo.errors.ServerSelectionTimeoutError: mongodb:27017: [Errno -2] Name or service not known, Timeout: 30s, Topology Description: <TopologyDescription id: 62a9444fe3c10bd3b572c8c8, topology_type: Single, servers: [<ServerDescription ('mongodb', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('mongodb:27017: [Errno -2] Name or service not known')>]>
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes/novo-rotten/rotten-potatoes$ docker ps
+CONTAINER ID   IMAGE                                         COMMAND                  CREATED              STATUS              PORTS                                                                      NAMES
+c41708306744   fernandomj90/nginx-alpine-desafio-docker:v2   "nginx -g 'daemon of…"   About a minute ago   Up About a minute   0.0.0.0:80->80/tcp, :::80->80/tcp, 0.0.0.0:443->443/tcp, :::443->443/tcp   webserver
+4e0cc1b8a495   portainer/portainer                           "/portainer"             3 days ago           Up 57 minutes       0.0.0.0:9000->9000/tcp, :::9000->9000/tcp                                  frosty_easley
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes/novo-rotten/rotten-potatoes$
+
+~~~~
+
+
+
+
+~~~~bash
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes/novo-rotten/rotten-potatoes$ docker logs mongodb
+{"t":{"$date":"2022-06-15T02:30:37.238+00:00"},"s":"I",  "c":"NETWORK",  "id":4915701, "ctx":"-","msg":"Initialized wire specification","attr":{"spec":{"incomingExternalClient":{"minWireVersion":0,"maxWireVersion":13},"incomingInternalClient":{"minWireVersion":0,"maxWireVersion":13},"outgoing":{"minWireVersion":0,"maxWireVersion":13},"isInternalClient":true}}}
+{"t":{"$date":"2022-06-15T02:30:37.243+00:00"},"s":"I",  "c":"CONTROL",  "id":23285,   "ctx":"main","msg":"Automatically disabling TLS 1.0, to force-enable TLS 1.0 specify --sslDisabledProtocols 'none'"}
+{"t":{"$date":"2022-06-15T02:30:37.243+00:00"},"s":"W",  "c":"ASIO",     "id":22601,   "ctx":"main","msg":"No TransportLayer configured during NetworkInterface startup"}
+{"t":{"$date":"2022-06-15T02:30:37.243+00:00"},"s":"I",  "c":"NETWORK",  "id":4648601, "ctx":"main","msg":"Implicit TCP FastOpen unavailable. If TCP FastOpen is required, set tcpFastOpenServer, tcpFastOpenClient, and tcpFastOpenQueueSize."}
+{"t":{"$date":"2022-06-15T02:30:37.245+00:00"},"s":"W",  "c":"ASIO",     "id":22601,   "ctx":"main","msg":"No TransportLayer configured during NetworkInterface startup"}
+{"t":{"$date":"2022-06-15T02:30:37.245+00:00"},"s":"I",  "c":"REPL",     "id":5123008, "ctx":"main","msg":"Successfully registered PrimaryOnlyService","attr":{"service":"TenantMigrationDonorService","ns":"config.tenantMigrationDonors"}}
+{"t":{"$date":"2022-06-15T02:30:37.245+00:00"},"s":"I",  "c":"REPL",     "id":5123008, "ctx":"main","msg":"Successfully registered PrimaryOnlyService","attr":{"service":"TenantMigrationRecipientService","ns":"config.tenantMigrationRecipients"}}
+{"t":{"$date":"2022-06-15T02:30:37.245+00:00"},"s":"I",  "c":"CONTROL",  "id":5945603, "ctx":"main","msg":"Multi threading initialized"}
+{"t":{"$date":"2022-06-15T02:30:37.246+00:00"},"s":"I",  "c":"CONTROL",  "id":4615611, "ctx":"initandlisten","msg":"MongoDB starting","attr":{"pid":1,"port":27017,"dbPath":"/data/db","architecture":"64-bit","host":"57503ae72812"}}
+{"t":{"$date":"2022-06-15T02:30:37.246+00:00"},"s":"I",  "c":"CONTROL",  "id":23403,   "ctx":"initandlisten","msg":"Build Info","attr":{"buildInfo":{"version":"5.0.5","gitVersion":"d65fd89df3fc039b5c55933c0f71d647a54510ae","openSSLVersion":"OpenSSL 1.1.1f  31 Mar 2020","modules":[],"allocator":"tcmalloc","environment":{"distmod":"ubuntu2004","distarch":"x86_64","target_arch":"x86_64"}}}}
+{"t":{"$date":"2022-06-15T02:30:37.246+00:00"},"s":"I",  "c":"CONTROL",  "id":51765,   "ctx":"initandlisten","msg":"Operating System","attr":{"os":{"name":"Ubuntu","version":"20.04"}}}
+{"t":{"$date":"2022-06-15T02:30:37.246+00:00"},"s":"I",  "c":"CONTROL",  "id":21951,   "ctx":"initandlisten","msg":"Options set by command line","attr":{"options":{"net":{"bindIp":"*"},"security":{"authorization":"enabled"}}}}
+{"t":{"$date":"2022-06-15T02:30:37.248+00:00"},"s":"I",  "c":"STORAGE",  "id":22270,   "ctx":"initandlisten","msg":"Storage engine to use detected by data files","attr":{"dbpath":"/data/db","storageEngine":"wiredTiger"}}
+{"t":{"$date":"2022-06-15T02:30:37.248+00:00"},"s":"I",  "c":"STORAGE",  "id":22297,   "ctx":"initandlisten","msg":"Using the XFS filesystem is strongly recommended with the WiredTiger storage engine. See http://dochub.mongodb.org/core/prodnotes-filesystem","tags":["startupWarnings"]}
+{"t":{"$date":"2022-06-15T02:30:37.248+00:00"},"s":"I",  "c":"STORAGE",  "id":22315,   "ctx":"initandlisten","msg":"Opening WiredTiger","attr":{"config":"create,cache_size=3754M,session_max=33000,eviction=(threads_min=4,threads_max=4),config_base=false,statistics=(fast),log=(enabled=true,archive=true,path=journal,compressor=snappy),builtin_extension_config=(zstd=(compression_level=6)),file_manager=(close_idle_time=600,close_scan_interval=10,close_handle_minimum=250),statistics_log=(wait=0),verbose=[recovery_progress,checkpoint_progress,compact_progress],"}}
+{"t":{"$date":"2022-06-15T02:30:38.269+00:00"},"s":"F",  "c":"STORAGE",  "id":4671205, "ctx":"initandlisten","msg":"This version of MongoDB is too recent to start up on the existing data files. Try MongoDB 4.2 or earlier."}
+{"t":{"$date":"2022-06-15T02:30:38.269+00:00"},"s":"F",  "c":"-",        "id":23091,   "ctx":"initandlisten","msg":"Fatal assertion","attr":{"msgid":4671205,"file":"src/mongo/db/storage/wiredtiger/wiredtiger_kv_engine.cpp","line":653}}
+{"t":{"$date":"2022-06-15T02:30:38.269+00:00"},"s":"F",  "c":"-",        "id":23092,   "ctx":"initandlisten","msg":"\n\n***aborting after fassert() failure\n\n"}
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes/novo-rotten/rotten-potatoes$
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes/novo-rotten/rotten-potatoes$
+~~~~
+
+
+
+
+
+- FUNCIONOU!!!
+- FUNCIONOU!!!
+- FUNCIONOU!!!
+- FUNCIONOU!!!
+- Problema ocorria devido o VOLUME que é criado no Docker-compose, ele estava impedindo que o COPY do Dockerfile copiasse arquivos para o diretório /app, fazendo que os arquivos em Python não existissem no WORKDIR do projeto, gerando o problema.
+- Erro no MongoDB era devido o volume estar com informações do MongoDB antigo, que era numa versão inferior.
+
+- Containers OK:
+
+~~~~bash
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes/novo-rotten/rotten-potatoes$ docker ps
+CONTAINER ID   IMAGE                                         COMMAND                  CREATED              STATUS              PORTS                                                                      NAMES
+74eb4343a8b7   fernandomj90/nginx-alpine-desafio-docker:v2   "nginx -g 'daemon of…"   About a minute ago   Up About a minute   0.0.0.0:80->80/tcp, :::80->80/tcp, 0.0.0.0:443->443/tcp, :::443->443/tcp   webserver
+8590ed352b97   fernandomj90/rotten-potatoes:v2               "gunicorn -c config.…"   About a minute ago   Up About a minute   0.0.0.0:5000->5000/tcp, :::5000->5000/tcp                                  flask
+04ea6600128a   mongo:5.0.5                                   "docker-entrypoint.s…"   About a minute ago   Up About a minute   0.0.0.0:27017->27017/tcp, :::27017->27017/tcp                              mongodb
+4e0cc1b8a495   portainer/portainer                           "/portainer"             3 days ago           Up About an hour    0.0.0.0:9000->9000/tcp, :::9000->9000/tcp                                  frosty_easley
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes/novo-rotten/rotten-potatoes$
+~~~~
+
+
+
+
+
+- COMENTANDO O VOLUME DO APP NO DOCKER-COMPOSE NOVAMENTE, O COPY NÃO FUNCIONA COM O VOLUME DO APP ATIVADO.
+
+- Derrubando containers:
+cd /home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes
+docker-compose down
+
+
+- Usar o --no-cache
+docker ps
+docker-compose build --no-cache
+docker-compose up -d
+docker ps
+
+
+
+- Com o volume comentado, todos os containers sobem corretamente, o COPY acontece:
+
+~~~~bash
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$ docker ps
+CONTAINER ID   IMAGE                                             COMMAND                  CREATED              STATUS              PORTS                                                                      NAMES
+0fc9b78347e2   fernandomj90/nginx-alpine-desafio-docker:3.15.4   "nginx -g 'daemon of…"   About a minute ago   Up About a minute   0.0.0.0:80->80/tcp, :::80->80/tcp, 0.0.0.0:443->443/tcp, :::443->443/tcp   webserver
+7225e1a082f1   fernandomj90/app-rotten-potatoes:v1               "gunicorn -c config.…"   About a minute ago   Up About a minute   0.0.0.0:5000->5000/tcp, :::5000->5000/tcp                                  flask
+0e63681d9725   mongo:4.0.8                                       "docker-entrypoint.s…"   About a minute ago   Up About a minute   0.0.0.0:27017->27017/tcp, :::27017->27017/tcp                              mongodb
+4e0cc1b8a495   portainer/portainer                               "/portainer"             3 days ago           Up About an hour    0.0.0.0:9000->9000/tcp, :::9000->9000/tcp                                  frosty_easley
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$
+
+
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$ curl localhost:5000 | head
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 11644  100 11644    0     0  1624k      0 --:<!DOCTYPE html>--:--:--     0
+-<html lang="en">
+-
+:<head>
+-       <meta charset="UTF-8">
+-       <meta http-equiv="X-UA-Compatible" content="IE=edge">
+--:     <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1">
+--:-
+-       <title>Rotten Potatoes</title>
+--
+:--:-- 1895k
+(23) Failed writing body
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$
+
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$ history | tail
+  538  curl localhost:5000 | head
+  539  curl localhost:5000 | head
+  540  docker ps
+  541  git add .
+  542  git commit -m "SOLUCAO para o caso do No Module Named no Gunicorn. Problema era do COPY durante o build que estava prejudicado devido o volume criado pelo DOCKER-COMPOSE. Ao comentar o volume no YAML, problema foi resolvido."
+  543  git push
+  544  eval $(ssh-agent -s)
+  545  ssh-add /home/fernando/.ssh/chave-debian10-github
+  546  git push
+  547  history | tail
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$
+
+~~~~
+
+
+
+- O Volume definido no Docker-compose "zera" os arquivos do diretório /app, fazendo com que os arquivos copiados via COPY durante o Build da imagem sejam perdidos.
+- Necessário ignorar o uso de VOLUME neste projeto, ou avaliar uma maneira do VOLUME não zerar os arquivos da pasta.
+- O VOLUME é interessante para o log do NGINX, por exemplo, que é escrito depois de nascer o Container, não é escrito durante o build.
+- Para o caso de arquivos que são copiados no build, o volume pode não ser interessante.
