@@ -2167,6 +2167,11 @@ fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-pota
 
 
 
+
+- Erro no Container do MongoDB:
+
+"This version of MongoDB is too recent to start up on the existing data files. Try MongoDB 4.2 or earlier."
+
 ~~~~bash
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes/novo-rotten/rotten-potatoes$ docker logs mongodb
 {"t":{"$date":"2022-06-15T02:30:37.238+00:00"},"s":"I",  "c":"NETWORK",  "id":4915701, "ctx":"-","msg":"Initialized wire specification","attr":{"spec":{"incomingExternalClient":{"minWireVersion":0,"maxWireVersion":13},"incomingInternalClient":{"minWireVersion":0,"maxWireVersion":13},"outgoing":{"minWireVersion":0,"maxWireVersion":13},"isInternalClient":true}}}
@@ -2191,7 +2196,7 @@ fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-pota
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes/novo-rotten/rotten-potatoes$
 ~~~~
 
-
+- Erro no MongoDB era devido o volume estar com informações do MongoDB antigo, que era numa versão inferior.
 
 
 
@@ -2283,3 +2288,16 @@ fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-pota
 - Necessário ignorar o uso de VOLUME neste projeto, ou avaliar uma maneira do VOLUME não zerar os arquivos da pasta.
 - O VOLUME é interessante para o log do NGINX, por exemplo, que é escrito depois de nascer o Container, não é escrito durante o build.
 - Para o caso de arquivos que são copiados no build, o volume pode não ser interessante.
+
+
+# PENDENTE
+- Fazer KB da solução sobre o caso do volume do MongoDB, sobre o caso do volume do APP que impacta o COPY.
+- Preencher o README.
+- Fazer pergunta e resposta.
+
+
+
+
+# Dia 16/06/2022
+
+- Efetuado KB do Mongo e do Gunicorn.
