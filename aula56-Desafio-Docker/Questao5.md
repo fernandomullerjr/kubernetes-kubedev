@@ -481,3 +481,4 @@ docker image ls | head
 
 - Seguir material do site abaixo, para configurar o NGINX de outra maneira, para comunicar com o PHP e o Wordpress:
     https://medium.com/swlh/wordpress-deployment-with-nginx-php-fpm-and-mariadb-using-docker-compose-55f59e5c1a
+- Tentar remover o ports "80:80" do container do Wordpress e usar a porta 9000 do FPM mesmo, usar o "8080:80" para o NGINX daí e testar.
