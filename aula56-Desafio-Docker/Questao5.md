@@ -211,4 +211,38 @@ fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/desafio-doc
 # Dia 18/06/2022
 
 - Criado KB sobre o erro do MYSQL na porta 3306.
+- Necessário separar os Containers do NGINX, PHP, no Wordpress do Alpine, no exemplo contido na pasta:
+  /home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao5/docker-wordpress-editado-2
+- Necessário aplicar boas práticas.
+- Avaliar se as imagens ficaram compactas.
 
+
+
+
+cd /home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao5/docker-wordpress-editado-2
+docker-compose up -d
+docker image ls | head
+
+~~~~bash
+
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/docker-wordpress-editado-2$ docker ps
+CONTAINER ID   IMAGE                                  COMMAND                  CREATED          STATUS                             PORTS                                       NAMES
+4d0081069069   docker-wordpress-editado-2_wordpress   "/entrypoint.sh /usr…"   12 seconds ago   Up 10 seconds (health: starting)   0.0.0.0:80->80/tcp, :::80->80/tcp           docker-wordpress-editado-2_wordpress_1
+888263913e4a   mariadb:10.3                           "docker-entrypoint.s…"   13 seconds ago   Up 12 seconds                      3306/tcp                                    docker-wordpress-editado-2_db_1
+4e0cc1b8a495   portainer/portainer                    "/portainer"             7 days ago       Up 2 hours                         0.0.0.0:9000->9000/tcp, :::9000->9000/tcp   frosty_easley
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/docker-wordpress-editado-2$
+
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/docker-wordpress-editado-2$ docker image ls | head
+REPOSITORY                                                                      TAG                  IMAGE ID       CREATED          SIZE
+docker-wordpress-editado-2_wordpress                                            latest               fff8bdef5c10   43 minutes ago   329MB
+desafio-docker-questao5-wordpress_wordpress                                     latest               fff8bdef5c10   43 minutes ago   329MB
+fernandomj90/nginx-alpine-desafio-docker                                        3.15.4               22f808d87c38   3 days ago       7.01MB
+fernandomj90/app-rotten-potatoes                                                v1                   7e729279e4f1   3 days ago       188MB
+fernandomj90/nginx-alpine-desafio-docker                                        v2                   ac9b80151cac   3 days ago       7.01MB
+fernandomj90/rotten-potatoes                                                    v2                   cdc4d9423369   3 days ago       188MB
+mariadb                                                                         10.3                 e7211b4227b5   11 days ago      387MB
+fernandomj90/desafio-docker-questao3-csharp-asp-net                             v3                   ed71f64133f8   2 weeks ago      210MB
+mcr.microsoft.com/dotnet/sdk                                                    5.0                  9fec788bd1f9   3 weeks ago      632MB
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/docker-wordpress-editado-2$
+
+~~~~
