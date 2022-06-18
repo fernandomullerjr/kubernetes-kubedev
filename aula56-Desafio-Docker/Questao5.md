@@ -216,8 +216,7 @@ fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/desafio-doc
 - Necessário aplicar boas práticas.
 - Avaliar se as imagens ficaram compactas.
 
-
-
+- Diretório de trabalho:
 
 cd /home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao5/docker-wordpress-editado-2
 docker-compose up -d
@@ -246,3 +245,239 @@ mcr.microsoft.com/dotnet/sdk                                                    
 fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/docker-wordpress-editado-2$
 
 ~~~~
+
+
+
+- Criando novo Dockerfile para separar o NGINX:
+    /home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao5/docker-wordpress-editado-2/Dockerfile-nginx.dockerfile
+- Avaliar questão do Upstream Server no arquivo de conf do NGINX.
+
+
+- Criado um arquivo nginx.conf personalizado, fazendo uso do Upstream Server:
+
+~~~~conf
+worker_processes  1;
+pid /run/nginx.pid;
+
+events {
+    worker_connections 1024;
+}
+
+upstream app_server {
+    server wordpress:80;
+}
+
+server {
+    listen 8080;
+    server_name _;
+    error_log  /var/log/nginx/error.log;
+    access_log /var/log/nginx/access.log;
+    client_max_body_size 64M;
+
+    location / {
+        try_files $uri @proxy_to_app;
+    }
+
+    location @proxy_to_app {
+        gzip_static on;
+
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Host $http_host;
+        proxy_buffering off;
+        proxy_redirect off;
+        proxy_pass http://app_server;
+    }
+}
+~~~~
+
+
+- Adicionando ao Docker-compose etapa de criação do Container do NGINX.
+- Copiando exemplo do diretório:
+/home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes/docker-compose.yml
+
+~~~~YAML
+
+  webserver:
+    build:
+      context: nginx
+      dockerfile: Dockerfile
+    image: fernandomj90/nginx-alpine-desafio-docker:3.15.4
+    container_name: webserver
+    restart: unless-stopped
+    tty: true
+    environment:
+      APP_ENV: "prod"
+      APP_NAME: "webserver"
+      APP_DEBUG: "true"
+      SERVICE_NAME: "webserver"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - nginxdata:/var/log/nginx
+    depends_on:
+      - flask
+    networks:
+      - frontend
+
+~~~~
+
+
+- Editado o Docker-compose, colocado o NGINX personalizado e declarado o volume do nginx:
+
+~~~~yaml
+
+  webserver:
+    build:
+      context: .
+      dockerfile: Dockerfile-nginx.dockerfile
+    image: fernandomj90/nginx-alpine-desafio-wordpress:3.15.4
+    container_name: webserver
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "443:443"
+    volumes:
+      - nginxdata:/var/log/nginx
+    depends_on:
+      - wordpress
+
+volumes:
+  db-data:
+  site-data:
+  nginxdata:
+~~~~
+
+
+
+
+- Apresentou erro no NGINX
+
+~~~~bash
+
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/docker-wordpress-editado-2$ docker ps
+CONTAINER ID   IMAGE                                                COMMAND                  CREATED          STATUS                             PORTS                                       NAMES
+a31e5f6a67be   fernandomj90/nginx-alpine-desafio-wordpress:3.15.4   "nginx -g 'daemon of…"   14 seconds ago   Restarting (1) 1 second ago                                                    webserver
+7a21387ccbf5   docker-wordpress-editado-2_wordpress                 "/entrypoint.sh /usr…"   15 seconds ago   Up 13 seconds (health: starting)   0.0.0.0:80->80/tcp, :::80->80/tcp           docker-wordpress-editado-2_wordpress_1
+04b4844c9092   mariadb:10.3                                         "docker-entrypoint.s…"   16 seconds ago   Up 15 seconds                      3306/tcp                                    docker-wordpress-editado-2_db_1
+4e0cc1b8a495   portainer/portainer                                  "/portainer"             7 days ago       Up 2 hours                         0.0.0.0:9000->9000/tcp, :::9000->9000/tcp   frosty_easley
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/docker-wordpress-editado-2$
+
+~~~~
+
+
+
+- Adicionando nome aos Containers no arquivo Docker-compose:
+
+~~~~yaml
+    container_name: db
+    container_name: wordpress
+~~~~
+
+
+
+- Segue com erro:
+
+~~~~bash
+
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/docker-wordpress-editado-2$
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/docker-wordpress-editado-2$ docker ps
+CONTAINER ID   IMAGE                                                COMMAND                  CREATED         STATUS                                  PORTS                                       NAMES
+1262eb2f92d3   fernandomj90/nginx-alpine-desafio-wordpress:3.15.4   "nginx -g 'daemon of…"   6 seconds ago   Restarting (1) Less than a second ago                                               webserver
+a30f20c9af27   docker-wordpress-editado-2_wordpress                 "/entrypoint.sh /usr…"   6 seconds ago   Up 6 seconds (health: starting)         0.0.0.0:80->80/tcp, :::80->80/tcp           wordpress
+2f9af04e9ae1   mariadb:10.3                                         "docker-entrypoint.s…"   7 seconds ago   Up 6 seconds                            3306/tcp                                    db
+4e0cc1b8a495   portainer/portainer                                  "/portainer"             7 days ago      Up 3 hours                              0.0.0.0:9000->9000/tcp, :::9000->9000/tcp   frosty_easley
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/docker-wordpress-editado-2$
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/docker-wordpress-editado-2$
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/docker-wordpress-editado-2$
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/docker-wordpress-editado-2$ docker logs webserver
+2022/06/18 16:32:53 [emerg] 1#1: "upstream" directive is not allowed here in /etc/nginx/nginx.conf:8
+nginx: [emerg] "upstream" directive is not allowed here in /etc/nginx/nginx.conf:8
+2022/06/18 16:32:54 [emerg] 1#1: "upstream" directive is not allowed here in /etc/nginx/nginx.conf:8
+nginx: [emerg] "upstream" directive is not allowed here in /etc/nginx/nginx.conf:8
+2022/06/18 16:32:55 [emerg] 1#1: "upstream" directive is not allowed here in /etc/nginx/nginx.conf:8
+nginx: [emerg] "upstream" directive is not allowed here in /etc/nginx/nginx.conf:8
+2022/06/18 16:32:56 [emerg] 1#1: "upstream" directive is not allowed here in /etc/nginx/nginx.conf:8
+nginx: [emerg] "upstream" directive is not allowed here in /etc/nginx/nginx.conf:8
+2022/06/18 16:32:57 [emerg] 1#1: "upstream" directive is not allowed here in /etc/nginx/nginx.conf:8
+nginx: [emerg] "upstream" directive is not allowed here in /etc/nginx/nginx.conf:8
+2022/06/18 16:32:59 [emerg] 1#1: "upstream" directive is not allowed here in /etc/nginx/nginx.conf:8
+nginx: [emerg] "upstream" directive is not allowed here in /etc/nginx/nginx.conf:8
+2022/06/18 16:33:03 [emerg] 1#1: "upstream" directive is not allowed here in /etc/nginx/nginx.conf:8
+nginx: [emerg] "upstream" directive is not allowed here in /etc/nginx/nginx.conf:8
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/docker-wordpress-editado-2$
+
+~~~~
+
+
+
+- Editando o conf
+/home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao5/docker-wordpress-editado-2/config/nginx.conf
+- Criado app.conf
+/home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao5/docker-wordpress-editado-2/config/app.conf
+
+- Subindo de novo o docker-compose.
+- Continuou com erro:
+~~~~bash
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/docker-wordpress-editado-2$ docker logs webserver
+2022/06/18 16:37:55 [emerg] 1#1: "upstream" directive is not allowed here in /etc/nginx/nginx.conf:8
+nginx: [emerg] "upstream" directive is not allowed here in /etc/nginx/nginx.conf:8
+~~~~
+
+- Provável problema de cache da imagem Docker.
+
+
+
+
+- Usar o --no-cache
+docker ps
+docker-compose build --no-cache
+docker-compose up -d
+docker ps
+
+
+
+- Containers sem erros:
+
+~~~~bash
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/docker-wordpress-editado-2$ docker ps
+CONTAINER ID   IMAGE                                                COMMAND                  CREATED          STATUS                            PORTS                                                                              NAMES
+70c95624bd09   fernandomj90/nginx-alpine-desafio-wordpress:3.15.4   "nginx -g 'daemon of…"   10 seconds ago   Up 8 seconds                      0.0.0.0:443->443/tcp, :::443->443/tcp, 0.0.0.0:8080->8080/tcp, :::8080->8080/tcp   webserver
+f79d90a5d491   docker-wordpress-editado-2_wordpress                 "/entrypoint.sh /usr…"   11 seconds ago   Up 9 seconds (health: starting)   0.0.0.0:80->80/tcp, :::80->80/tcp                                                  wordpress
+7d0f979f73c3   mariadb:10.3                                         "docker-entrypoint.s…"   11 seconds ago   Up 10 seconds                     3306/tcp                                                                           db
+4e0cc1b8a495   portainer/portainer                                  "/portainer"             7 days ago       Up 3 hours                        0.0.0.0:9000->9000/tcp, :::9000->9000/tcp                                          frosty_easley
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/docker-wordpress-editado-2$
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/docker-wordpress-editado-2$
+~~~~
+
+
+- Porém a página do Wordpress não abre, usando a porta do NGINX:
+http://192.168.0.113:8080/
+
+Não foi possível conectar
+
+O Firefox não conseguiu estabelecer uma conexão com o servidor 192.168.0.113:8080.
+    Este site pode estar temporariamente fora do ar ou sobrecarregado. Tente de novo em alguns instantes.
+    Se você não conseguir carregar nenhuma página, verifique a conexão de rede do computador.
+    Se a rede ou o computador estiver protegido por um firewall ou proxy, verifique se o Firefox está autorizado a acessar a web.
+
+
+
+# PENDENTE
+- Seguir material do site abaixo, para configurar o NGINX de outra maneira, para comunicar com o PHP e o Wordpress:
+    https://medium.com/swlh/wordpress-deployment-with-nginx-php-fpm-and-mariadb-using-docker-compose-55f59e5c1a
+- Criado KB sobre o erro do MYSQL na porta 3306.
+- Necessário separar os Containers do NGINX, PHP, no Wordpress do Alpine, no exemplo contido na pasta:
+  /home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao5/docker-wordpress-editado-2
+- Necessário aplicar boas práticas.
+- Avaliar se as imagens ficaram compactas.
+
+- Diretório de trabalho:
+
+cd /home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao5/docker-wordpress-editado-2
+docker-compose up -d
+docker image ls | head
+
+- Seguir material do site abaixo, para configurar o NGINX de outra maneira, para comunicar com o PHP e o Wordpress:
+    https://medium.com/swlh/wordpress-deployment-with-nginx-php-fpm-and-mariadb-using-docker-compose-55f59e5c1a
