@@ -845,3 +845,1015 @@ E DESTE, DO FIDELIS:
 - Aplicar boas práticas.
 - Avaliar se as imagens ficaram compactas.
 - Fazer boilerplates dos que funcionarem OK.
+
+- Avaliar imagens do Wordpress com PHP-FPM:
+
+Original, pesada:
+wordpress:php8.1-fpm 
+<https://hub.docker.com/layers/wordpress/library/wordpress/php8.1-fpm/images/sha256-f2472abf469e4bf2040ea245caf704cc8db1a1c0bc570e4ee2d98df137a8a46e?context=explore>
+202.89 MB
+
+Alpine mais leve
+wordpress:php8.1-fpm-alpine
+<https://hub.docker.com/layers/wordpress/library/wordpress/php8.1-fpm-alpine/images/sha256-650b02165fc8b38d2c773ba34694ac8e29957dfa0c8120a9d9f1df41c2e7cd77?context=explore>
+96.97 MB
+
+- Manual da Digital Ocean, que usa um Wordpress-FPM-Alpine de exemplo:
+<https://www.digitalocean.com/community/tutorials/how-to-install-wordpress-with-docker-compose-pt>
+
+
+
+
+
+
+
+
+# ####################################################################################################################################################################
+# ####################################################################################################################################################################
+# ####################################################################################################################################################################
+# ####################################################################################################################################################################
+# ####################################################################################################################################################################
+# Dia 03/07/2022
+
+- Funcionou o projeto simples da pasta:
+/home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao5/php-fpm-nginx-simples
+Esse projeto usa um NGINX, com um arquivo index.php simples e um container separado para o PHP-FPM. Não tem banco de dados nesse projeto.
+
+- Criado novo projeto, com base no simples:
+/home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-3
+
+
+
+
+# ####################################################################################################################################################################
+# ####################################################################################################################################################################
+# ####################################################################################################################################################################
+# ####################################################################################################################################################################
+# ####################################################################################################################################################################
+# Digital Ocean - Como instalar o WordPress com o Docker Compose
+
+- Manual da Digital Ocean, que usa um Wordpress-FPM-Alpine de exemplo:
+<https://www.digitalocean.com/community/tutorials/how-to-install-wordpress-with-docker-compose-pt>
+
+- Diretório do projeto
+/home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-3
+
+- Passo 1 — Definindo as configurações do servidor Web
+mkdir nginx-conf
+touch nginx-conf/nginx.conf
+
+- Passo 2 — Definindo as variáveis de ambiente
+cd /home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-3
+touch .env
+vi .env
+
+- Como seu arquivo .env contém informações confidenciais, você irá querer garantir que ele seja incluído nos arquivos .gitignore e .dockerignore, os quais dizem ao Git e ao Docker quais arquivos **não **copiar para os seus repositórios Git e imagens do Docker, respectivamente.
+touch .gitignore
+Adicione o .env ao arquivo:
+vi .gitignore
+.env
+
+- De igual modo, como boa medida de precaução, adicione .env em um arquivo .dockerignore, para que ele não acabe nos seus contêineres quando estiver usando esse diretório como seu contexto de compilação.
+Abra o arquivo:
+touch .dockerignore
+vi .dockerignore
+
+Adicione o .env ao arquivo:
+.env
+
+Opcionalmente, abaixo disso você pode adicionar arquivos e diretórios associados ao desenvolvimento do seu aplicativo:
+~/wordpress/.dockerignore
+
+.env
+.git
+docker-compose.yml
+.dockerignore
+
+
+- Passo 3— Definindo serviços com o Docker Compose
+
+Para começar, abra o arquivo docker-compose.yml:
+touch docker-compose.yml
+
+Adicione o seguinte código para definir sua versão do arquivo Compose e o serviço de banco de dados db:
+~/wordpress/docker-compose.yml
+
+~~~~yaml
+version: '3'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: db
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - MYSQL_DATABASE=wordpress
+    volumes:
+      - dbdata:/var/lib/mysql
+    command: '--default-authentication-plugin=mysql_native_password'
+    networks:
+      - app-network
+~~~~
+
+
+
+- Em seguida, abaixo de sua definição de serviço db, adicione a definição para seu serviço de aplicativo do wordpress:
+~/wordpress/docker-compose.yml
+
+~~~~yaml
+...
+  wordpress:
+    depends_on:
+      - db
+    image: wordpress:5.1.1-fpm-alpine
+    container_name: wordpress
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - WORDPRESS_DB_HOST=db:3306
+      - WORDPRESS_DB_USER=$MYSQL_USER
+      - WORDPRESS_DB_PASSWORD=$MYSQL_PASSWORD
+      - WORDPRESS_DB_NAME=wordpress
+    volumes:
+      - wordpress:/var/www/html
+    networks:
+      - app-network
+~~~~
+
+
+Em seguida, abaixo da definição do serviço de aplicativo do wordpress, adicione a seguinte definição para seu serviço do Nginx webserver:
+~/wordpress/docker-compose.yml
+
+~~~~yaml
+...
+  webserver:
+    depends_on:
+      - wordpress
+    image: nginx:1.15.12-alpine
+    container_name: webserver
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - wordpress:/var/www/html
+      - ./nginx-conf:/etc/nginx/conf.d
+      - certbot-etc:/etc/letsencrypt
+    networks:
+      - app-network
+~~~~
+
+
+- Por fim, abaixo da definição de seu webserver, adicione sua última definição de serviço para o serviço do certbot. Certifique-se de substituir o endereço de e-mail e os nomes de domínio listados aqui por suas próprias informações:
+~/wordpress/docker-compose.yml
+
+~~~~yaml
+  certbot:
+    depends_on:
+      - webserver
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - certbot-etc:/etc/letsencrypt
+      - wordpress:/var/www/html
+    command: certonly --webroot --webroot-path=/var/www/html --email sammy@example.com --agree-tos --no-eff-email --staging -d example.com -d www.example.com
+~~~~
+
+Essa definição diz ao Compose para obter a imagem certbot/certbot do Docker Hub. Ela também usa volumes nomeados para compartilhar recursos com o contêiner do Nginx, incluindo certificados de domínio e chave no certbot-etc e o código do aplicativo no wordpress.
+
+
+
+- Abaixo da definição do serviço do certbot, adicione sua rede e definições de volume:
+~/wordpress/docker-compose.yml
+
+~~~~yaml
+...
+volumes:
+  certbot-etc:
+  wordpress:
+  dbdata:
+
+networks:
+  app-network:
+    driver: bridge  
+~~~~
+
+
+
+- Ajustado dominios para:
+fernandomullerjr.site
+
+
+
+
+- O arquivo final docker-compose.yml ficará parecido com o seguinte:
+~/wordpress/docker-compose.yml
+
+~~~~yaml
+version: '3'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: db
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - MYSQL_DATABASE=wordpress
+    volumes:
+      - dbdata:/var/lib/mysql
+    command: '--default-authentication-plugin=mysql_native_password'
+    networks:
+      - app-network
+
+  wordpress:
+    depends_on:
+      - db
+    image: wordpress:5.1.1-fpm-alpine
+    container_name: wordpress
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - WORDPRESS_DB_HOST=db:3306
+      - WORDPRESS_DB_USER=$MYSQL_USER
+      - WORDPRESS_DB_PASSWORD=$MYSQL_PASSWORD
+      - WORDPRESS_DB_NAME=wordpress
+    volumes:
+      - wordpress:/var/www/html
+    networks:
+      - app-network
+
+  webserver:
+    depends_on:
+      - wordpress
+    image: nginx:1.15.12-alpine
+    container_name: webserver
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - wordpress:/var/www/html
+      - ./nginx-conf:/etc/nginx/conf.d
+      - certbot-etc:/etc/letsencrypt
+    networks:
+      - app-network
+
+  certbot:
+    depends_on:
+      - webserver
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - certbot-etc:/etc/letsencrypt
+      - wordpress:/var/www/html
+    command: certonly --webroot --webroot-path=/var/www/html --email sammy@example.com --agree-tos --no-eff-email --staging -d example.com -d www.example.com
+
+volumes:
+  certbot-etc:
+  wordpress:
+  dbdata:
+
+networks:
+  app-network:
+    driver: bridge  
+~~~~
+
+Salve e feche o arquivo quando você terminar a edição.
+
+
+
+- Passo 4 — Obtendo certificados e credenciais SSL
+
+Podemos iniciar nossos contêineres com o comando docker-compose up, que criará e executará nossos contêineres na ordem que especificamos. Se nossos pedidos de domínio forem bem sucedidos, veremos o status correto da saída no nosso resultado e os certificados corretos montados na pasta /etc/letsencrypt/live no contêiner do webserver.
+
+Crie os contêineres com o docker-compose up e o sinalizador -d, os quais executarão os contêineres db, wordpress e webserver em segundo plano:
+    docker-compose up -d
+
+Com o uso do docker-compose ps, verifique o status dos seus serviços:
+    docker-compose ps
+
+Se tudo ocorreu bem, seus serviços db, wordpress e webserver devem estar Up e o contêiner certbot terá fechado com uma mensagem de status 0:
+
+~~~bash
+Output
+  Name                 Command               State           Ports       
+-------------------------------------------------------------------------
+certbot     certbot certonly --webroot ...   Exit 0                      
+db          docker-entrypoint.sh --def ...   Up       3306/tcp, 33060/tcp
+webserver   nginx -g daemon off;             Up       0.0.0.0:80->80/tcp
+wordpress   docker-entrypoint.sh php-fpm     Up       9000/tcp           
+~~~
+
+
+
+- Se você ver qualquer outra coisa além de Up na coluna State em relação aos serviços db, wordpress ou webserver ou um status de fechamento que não seja 0 em relação ao contêiner certbot, certifique-se de verificar os registros de serviço com o comando docker-compose logs:
+    docker-compose logs service_name
+
+Agora, é possível verificar se seus certificados foram instalados no contêiner webserver com o docker-compose exec:
+    docker-compose exec webserver ls -la /etc/letsencrypt/live
+
+Se os seus pedidos de certificado tiverem sido bem-sucedidos, verá um resultado como este:
+
+~~~bash
+Output
+total 16
+drwx------    3 root     root          4096 May 10 15:45 .
+drwxr-xr-x    9 root     root          4096 May 10 15:45 ..
+-rw-r--r--    1 root     root           740 May 10 15:45 README
+drwxr-xr-x    2 root     root          4096 May 10 15:45 example.com
+~~~
+
+
+
+
+- PROBLEMAS
+
+- Containers subiram.
+- Apenas o container do certbot tá com o status de "Exit 1" ao invés de "Exit 0".
+
+~~~bash
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-3$  docker-compose ps
+  Name                 Command               State                 Ports
+--------------------------------------------------------------------------------------
+certbot     certbot certonly --webroot ...   Exit 1
+db          docker-entrypoint.sh --def ...   Up       3306/tcp, 33060/tcp
+webserver   nginx -g daemon off;             Up       0.0.0.0:80->80/tcp,:::80->80/tcp
+wordpress   docker-entrypoint.sh php-fpm     Up       9000/tcp
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-3$ ^C
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-3$
+~~~
+
+
+- Não foram criados os certificados conforme o esperado:
+
+~~~bash
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-3$ docker-compose exec webserver ls -la /etc/letsencrypt/live
+ls: /etc/letsencrypt/live: No such file or directory
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-3$
+~~~
+
+
+docker-compose logs service_name
+docker-compose logs certbot
+
+- ERROS NO CERTBOT
+
+~~~bash
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-3$ docker-compose logs certbot
+Attaching to certbot
+certbot      | Account registered.
+certbot      | Requesting a certificate for fernandomullerjr.site and www.fernandomullerjr.site
+certbot      |
+certbot      | Certbot failed to authenticate some domains (authenticator: webroot). The Certificate Authority reported these problems:
+certbot      |   Domain: fernandomullerjr.site
+certbot      |   Type:   dns
+certbot      |   Detail: DNS problem: SERVFAIL looking up A for fernandomullerjr.site - the domain's nameservers may be malfunctioning; DNS problem: SERVFAIL looking up AAAA for fernandomullerjr.site - the domain's nameservers may be malfunctioning
+certbot      |
+certbot      |   Domain: www.fernandomullerjr.site
+certbot      |   Type:   dns
+certbot      |   Detail: DNS problem: SERVFAIL looking up A for www.fernandomullerjr.site - the domain's nameservers may be malfunctioning; DNS problem: SERVFAIL looking up AAAA for www.fernandomullerjr.site - the domain's nameservers may be malfunctioning
+certbot      |
+certbot      | Hint: The Certificate Authority failed to download the temporary challenge files created by Certbot. Ensure that the listed domains serve their content from the provided --webroot-path/-w and that files created there can be downloaded from the internet.
+certbot      |
+certbot      | Saving debug log to /var/log/letsencrypt/letsencrypt.log
+certbot      | Some challenges have failed.
+certbot      | Ask for help or search for solutions at https://community.letsencrypt.org. See the logfile /var/log/letsencrypt/letsencrypt.log or re-run Certbot with -v for more details.
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-3$
+~~~
+
+
+
+- Comentadas as configurações sobre certbot no arquivo do docker-compose:
+/home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-3/docker-compose.yml
+
+
+- Efetuado down e up no projeto
+docker-compose down
+docker ps
+docker-compose up -d
+
+
+- Containers OK
+
+~~~bash
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-3$ docker ps
+CONTAINER ID   IMAGE                        COMMAND                  CREATED         STATUS         PORTS                               NAMES
+1e707c178d65   nginx:1.15.12-alpine         "nginx -g 'daemon of…"   7 minutes ago   Up 7 minutes   0.0.0.0:80->80/tcp, :::80->80/tcp   webserver
+21430f62a145   wordpress:5.1.1-fpm-alpine   "docker-entrypoint.s…"   7 minutes ago   Up 7 minutes   9000/tcp                            wordpress
+3e57b70ca6a9   mysql:8.0                    "docker-entrypoint.s…"   7 minutes ago   Up 7 minutes   3306/tcp, 33060/tcp                 db
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-3$
+~~~
+
+- Usuario e senha:
+teste
+Htd&ZUfVDGD@PGaMAk
+- Página acessível
+- Criado boilerplate:
+/home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao5/boilerplates/wordpress-php-fpm-alpine-nginx-OK
+
+
+
+
+
+# ####################################################################################################################################################################
+# ####################################################################################################################################################################
+# ####################################################################################################################################################################
+# ####################################################################################################################################################################
+# ####################################################################################################################################################################
+# UPGRADE DE VERSÕES DO NGINX E WORDPRESS - Digital Ocean
+
+- Testar upgrade de versoes, primeiro.
+DE:
+wordpress:5.1.1-fpm-alpine
+PARA
+wordpress:php8.1-fpm-alpine
+
+- Subindo:
+docker-compose up -d
+
+~~~bash
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-4$ docker ps
+CONTAINER ID   IMAGE                         COMMAND                  CREATED          STATUS          PORTS                               NAMES
+2c0e38beec11   nginx:1.15.12-alpine          "nginx -g 'daemon of…"   12 seconds ago   Up 4 seconds    0.0.0.0:80->80/tcp, :::80->80/tcp   webserver
+c8bcb03595f4   wordpress:php8.1-fpm-alpine   "docker-entrypoint.s…"   13 seconds ago   Up 12 seconds   9000/tcp                            wordpress
+bdaefbe437ed   mysql:8.0                     "docker-entrypoint.s…"   14 seconds ago   Up 13 seconds   3306/tcp, 33060/tcp                 db
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-4$
+~~~
+
+- Acessível:
+http://192.168.0.113:80/
+teste
+T7GS*OZpg$k1Jrb#Ql
+http://192.168.0.113/
+
+
+- Efetuando desligamento dos containers:
+docker-compose down
+
+
+- Atualizando NGINX
+DE:
+nginx:1.15.12-alpine
+PARA:
+nginx:1.23.0-alpine
+
+
+~~~bash
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-4$ docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-4$ docker-compose up -d
+Creating network "wordpress-php-fpm-alpine-nginx-4_app-network" with driver "bridge"
+Pulling webserver (nginx:1.23.0-alpine)...
+1.23.0-alpine: Pulling from library/nginx
+2408cc74d12b: Already exists
+dd61fcc63eac: Pull complete
+f9686e628075: Pull complete
+ceb5504faee7: Pull complete
+ce5d272a5b4f: Pull complete
+136e07b65aca: Pull complete
+Digest: sha256:8e38930f0390cbd79b2d1528405fb17edcda5f4a30875ecf338ebaa598dc994e
+Status: Downloaded newer image for nginx:1.23.0-alpine
+Creating db ... done
+Creating wordpress ... done
+Creating webserver ... done
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-4$ docker ps
+CONTAINER ID   IMAGE                         COMMAND                  CREATED          STATUS         PORTS                               NAMES
+de73c699c230   nginx:1.23.0-alpine           "/docker-entrypoint.…"   9 seconds ago    Up 7 seconds   0.0.0.0:80->80/tcp, :::80->80/tcp   webserver
+c5015b89e32b   wordpress:php8.1-fpm-alpine   "docker-entrypoint.s…"   10 seconds ago   Up 8 seconds   9000/tcp                            wordpress
+f1069f7c3350   mysql:8.0                     "docker-entrypoint.s…"   10 seconds ago   Up 9 seconds   3306/tcp, 33060/tcp                 db
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-4$
+~~~
+
+- Acessível
+http://192.168.0.113/
+Não precisou instalar wordpress, devido o volume, acredito.
+
+
+- Imagens atuais
+
+~~~bash
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-4$ docker image ls | grep "1.23.0-alpine"
+nginx                                                                           1.23.0-alpine        f246e6f9d0b2   10 days ago     23.5MB
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-4$
+
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-4$ docker image ls | grep "php8.1-fpm-alpine"
+wordpress                                                                       php8.1-fpm-alpine    ee48600d8b6c   3 weeks ago     305MB
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-4$
+
+~~~
+
+- TUDO FUNCIONANDO OK ATÉ AQUI!
+- TUDO FUNCIONANDO OK ATÉ AQUI!
+- TUDO FUNCIONANDO OK ATÉ AQUI!
+- TUDO FUNCIONANDO OK ATÉ AQUI!
+- TUDO FUNCIONANDO OK ATÉ AQUI!
+
+
+
+
+
+
+
+
+# ####################################################################################################################################################################
+# ####################################################################################################################################################################
+# ####################################################################################################################################################################
+# ####################################################################################################################################################################
+# ####################################################################################################################################################################
+# IMAGENS - Melhoria do tamanho
+
+- Melhorar tamanho da imagem do WORDPRESS.
+Original é:
+96.97 MB
+Atual está com:
+305MB
+
+
+- Exemplo do Rotten
+
+  webserver:
+    build:
+      context: nginx
+      dockerfile: Dockerfile
+    image: fernandomj90/nginx-alpine-desafio-docker:3.15.4
+    container_name: webserver
+
+
+
+- Editando o docker-compose do WORDPRESS:
+    build:
+      context: ./setup/wordpress-php-fpm
+      dockerfile: Dockerfile-wordpress-php-fpm-alpine
+    image: fernandomj90/wordpress-php8.1-fpm-alpine:v1
+
+
+- Editando o Dockerfile:
+
+~~~~Dockerfile
+FROM wordpress:php8.1-fpm-alpine
+
+RUN echo "teste"
+
+CMD ["php-fpm"]
+~~~~
+
+- Parando e subindo projeto:
+docker-compose down
+docker-compose up -d
+
+~~~bash
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-4$ docker ps
+CONTAINER ID   IMAGE                                         COMMAND                  CREATED          STATUS          PORTS                               NAMES
+910c0416d719   nginx:1.23.0-alpine                           "/docker-entrypoint.…"   17 seconds ago   Up 16 seconds   0.0.0.0:80->80/tcp, :::80->80/tcp   webserver
+9ac3554b258e   fernandomj90/wordpress-php8.1-fpm-alpine:v1   "docker-entrypoint.s…"   18 seconds ago   Up 17 seconds   9000/tcp                            wordpress-php-fpm-alpine
+16b599e89150   mysql:8.0                                     "docker-entrypoint.s…"   18 seconds ago   Up 18 seconds   3306/tcp, 33060/tcp                 db
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-4$
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-4$
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-4$ docker image ls | head
+REPOSITORY                                                                      TAG                  IMAGE ID       CREATED          SIZE
+fernandomj90/wordpress-php8.1-fpm-alpine                                        v1                   6922c94c8ea4   24 seconds ago   305MB
+~~~
+
+- Imagem do Wordpress seguiu um pouco pesada.
+
+
+
+
+
+- Criado Dockerfile.
+
+- Buildando
+docker-compose build --no-cache
+docker-compose up -d
+
+
+~~~bash
+Removing intermediate container b5473fe37479
+ ---> 5d1eb9b0e02b
+Step 11/18 : RUN apk add php8-common php8-session php8-iconv php8-json php8-gd php8-curl php8-xml php8-mysqli php8-imap php8-cgi fcgi php8-pdo php8-pdo_mysql php8-soap php8-xmlrpc php8-posix php8-mcrypt php8-gettext php8-ldap php8-ctype php8-dom php8-simplexml
+ ---> Running in d70d195b9f7c
+  php8-mcrypt (no such package):
+ERROR: unable to select packages:
+    required by: world[php8-mcrypt]
+  php8-xmlrpc (no such package):
+    required by: world[php8-xmlrpc]
+The command '/bin/sh -c apk add php8-common php8-session php8-iconv php8-json php8-gd php8-curl php8-xml php8-mysqli php8-imap php8-cgi fcgi php8-pdo php8-pdo_mysql php8-soap php8-xmlrpc php8-posix php8-mcrypt php8-gettext php8-ldap php8-ctype php8-dom php8-simplexml' returned a non-zero code: 2
+ERROR: Service 'wordpress' failed to build : Build failed
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-4$ docker-compose up -d
+~~~
+
+
+Mcrypt has been deprecated in PHP 7.2, so it's not available by default. You can still install the mcrypt extension using pecl.
+
+Removendo:
+php8-mcrypt
+
+DE:
+php8-xmlrpc
+PARA:
+php8-pecl-xmlrpc
+
+
+
+- Buildando
+docker-compose build --no-cache
+docker-compose up -d
+
+
+~~~bash
+Step 11/18 : RUN apk add php8-common php8-session php8-iconv php8-json php8-gd php8-curl php8-xml php8-mysqli php8-imap php8-cgi fcgi php8-pdo php8-pdo_mysql php8-soap php8-pecl-xmlrpc php8-posix php8-gettext php8-ldap php8-ctype php8-dom php8-simplexml
+ ---> Running in c2689cb18522
+ERROR: unable to select packages:
+  php8-pecl-xmlrpc (no such package):
+    required by: world[php8-pecl-xmlrpc]
+The command '/bin/sh -c apk add php8-common php8-session php8-iconv php8-json php8-gd php8-curl php8-xml php8-mysqli php8-imap php8-cgi fcgi php8-pdo php8-pdo_mysql php8-soap php8-pecl-xmlrpc php8-posix php8-gettext php8-ldap php8-ctype php8-dom php8-simplexml' returned a non-zero code: 1
+ERROR: Service 'wordpress' failed to build : Build failed
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-4$
+~~~
+
+
+Removendo:
+php8-pecl-xmlrpc
+
+
+
+Step 12/18 : RUN mkdir /var/www/html
+ ---> Running in 1cdf14511526
+mkdir: can't create directory '/var/www/html': No such file or directory
+The command '/bin/sh -c mkdir /var/www/html' returned a non-zero code: 1
+ERROR: Service 'wordpress' failed to build : Build failed
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-4$
+
+
+
+RUN mkdir -p /var/www/html
+RUN mkdir -p /usr/src/wordpress/
+
+
+- Buildando
+docker-compose build --no-cache
+docker-compose up -d
+
+
+
+Step 17/18 : COPY --from=base /var/www/html /var/www/html
+ ---> 69cff46834a0
+Step 18/18 : CMD ["php-fpm"]
+ ---> Running in 7942d4bf7c13
+Removing intermediate container 7942d4bf7c13
+ ---> de0baf24cf9c
+Successfully built de0baf24cf9c
+Successfully tagged fernandomj90/wordpress-php8.1-fpm-alpine:v1
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-4$
+
+
+
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-4$ docker image ls | head
+REPOSITORY                                                                      TAG                  IMAGE ID       CREATED              SIZE
+fernandomj90/wordpress-php8.1-fpm-alpine                                        v1                   de0baf24cf9c   21 seconds ago       198MB
+
+
+
+CMD ["php-fpm"]
+CMD ["php8-fpm"]
+
+
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-4$ docker-compose up -d
+db is up-to-date
+Recreating wordpress-php-fpm-alpine ... error
+
+ERROR: for wordpress-php-fpm-alpine  Cannot start service wordpress: OCI runtime create failed: container_linux.go:380: starting container process caused: exec: "php8-fpm": executable file not found in $PATH: unknown
+
+ERROR: for wordpress  Cannot start service wordpress: OCI runtime create failed: container_linux.go:380: starting container process caused: exec: "php8-fpm": executable file not found in $PATH: unknown
+ERROR: Encountered errors while bringing up the project.
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-4$
+
+
+
+
+CMD ["php8-fpm"]
+CMD ["php-fpm8"]
+
+
+- Buildando
+docker-compose build --no-cache
+docker-compose up -d
+
+- ERRO
+- Container do wordpress reiniciando:
+
+
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-4$ docker ps
+CONTAINER ID   IMAGE                                         COMMAND                  CREATED         STATUS                          PORTS                               NAMES
+30150766879a   nginx:1.23.0-alpine                           "/docker-entrypoint.…"   3 minutes ago   Up 3 minutes                    0.0.0.0:80->80/tcp, :::80->80/tcp   webserver
+c9cccf4b7050   fernandomj90/wordpress-php8.1-fpm-alpine:v1   "php-fpm8"               3 minutes ago   Restarting (0) 12 seconds ago                                       wordpress-php-fpm-alpine
+21a3a7ef0961   mysql:8.0                                     "docker-entrypoint.s…"   3 minutes ago   Up 3 minutes                    3306/tcp, 33060/tcp                 db
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-4$
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-4$
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-4$ docker logs wordpress-php-fpm-alpine
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-4$
+
+- Sem logs de erros.
+
+
+- Alterando DOCKERFILE.
+- Trocado Alpine por uma imagem do PHP baseada em Alpine.
+
+DE:
+alpine:3.16.0
+PARA:
+php:8.1-fpm-alpine3.16
+
+
+- Buildando
+docker-compose build --no-cache
+docker-compose up -d
+
+
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-4$ docker-compose up -d
+Creating network "wordpress-php-fpm-alpine-nginx-4_app-network" with driver "bridge"
+Creating db ... done
+Creating wordpress-php-fpm-alpine ... done
+Creating webserver                ... done
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-4$ docker ps
+CONTAINER ID   IMAGE                                         COMMAND                  CREATED         STATUS         PORTS                               NAMES
+902838de3ab5   nginx:1.23.0-alpine                           "/docker-entrypoint.…"   6 seconds ago   Up 2 seconds   0.0.0.0:80->80/tcp, :::80->80/tcp   webserver
+801cd9530bb0   fernandomj90/wordpress-php8.1-fpm-alpine:v1   "docker-php-entrypoi…"   6 seconds ago   Up 5 seconds   9000/tcp                            wordpress-php-fpm-alpine
+af53224bdcc1   mysql:8.0                                     "docker-entrypoint.s…"   7 seconds ago   Up 6 seconds   3306/tcp, 33060/tcp                 db
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-4$ ^C
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-4$ ^C
+
+
+
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-4$ docker image ls | head
+REPOSITORY                                                                      TAG                  IMAGE ID       CREATED              SIZE
+fernandomj90/wordpress-php8.1-fpm-alpine                                        v1                   38d6d2387546   About a minute ago   245MB
+
+
+
+- ERRO
+
+Fatal error: Uncaught Error: Call to undefined function mysql_connect() in /var/www/html/wp-includes/wp-db.php:1788 Stack trace: #0 /var/www/html/wp-includes/wp-db.php(724): wpdb->db_connect() #1 /var/www/html/wp-includes/load.php(561): wpdb->__construct('fernandomuller', 'senhafraca123', 'wordpress', 'db:3306') #2 /var/www/html/wp-settings.php(124): require_wp_db() #3 /var/www/html/wp-config.php(133): require_once('/var/www/html/w...') #4 /var/www/html/wp-load.php(50): require_once('/var/www/html/w...') #5 /var/www/html/wp-blog-header.php(13): require_once('/var/www/html/w...') #6 /var/www/html/index.php(17): require('/var/www/html/w...') #7 {main} thrown in /var/www/html/wp-includes/wp-db.php on line 1788
+
+
+
+Francesco
+(@fcolombo)
+3 years, 7 months ago
+For what is worth, I encountered the same error and the issue was solved by enabling the nd_mysqli extension in the PHP 7 configuration, and disabling the mysqli one.
+
+
+DE:
+RUN apk add php8-common php8-session php8-iconv php8-json php8-gd php8-curl php8-xml php8-mysqli php8-imap php8-cgi fcgi php8-pdo php8-pdo_mysql php8-soap php8-posix php8-gettext php8-ldap php8-ctype php8-dom php8-simplexml
+
+PARA:
+RUN apk add php8-common php8-session php8-iconv php8-json php8-gd php8-curl php8-xml php8-mysqlnd php8-imap php8-cgi fcgi php8-pdo php8-pdo_mysql php8-soap php8-posix php8-gettext php8-ldap php8-ctype php8-dom php8-simplexml
+
+
+- Buildando
+docker-compose down
+docker-compose build --no-cache
+docker-compose up -d
+
+- Entrando no container do Wordpress
+docker container exec -ti wordpress-php-fpm-alpine  bash
+
+
+/usr/src/wordpress/
+
+
+
+
+Fatal error: Uncaught Error: Call to undefined function mysql_connect() in /var/www/html/wp-includes/wp-db.php:1788 Stack trace: #0 /var/www/html/wp-includes/wp-db.php(724): wpdb->db_connect() #1 /var/www/html/wp-includes/load.php(561): wpdb->__construct('fernandomuller', 'senhafraca123', 'wordpress', 'db:3306') #2 /var/www/html/wp-settings.php(124): require_wp_db() #3 /var/www/html/wp-config.php(133): require_once('/var/www/html/w...') #4 /var/www/html/wp-load.php(50): require_once('/var/www/html/w...') #5 /var/www/html/wp-blog-header.php(13): require_once('/var/www/html/w...') #6 /var/www/html/index.php(17): require('/var/www/html/w...') #7 {main} thrown in /var/www/html/wp-includes/wp-db.php on line 1788
+
+
+
+DE:
+RUN apk add php8-common php8-session php8-iconv php8-json php8-gd php8-curl php8-xml php8-mysqlnd php8-imap php8-cgi fcgi php8-pdo php8-pdo_mysql php8-soap php8-posix php8-gettext php8-ldap php8-ctype php8-dom php8-simplexml
+PARA:
+RUN apk add php8-common php8-session php8-iconv php8-json php8-gd php8-curl php8-xml php8-mysqlnd php8-mysqli php8-imap php8-cgi fcgi php8-pdo php8-pdo_mysql php8-soap php8-posix php8-gettext php8-ldap php8-ctype php8-dom php8-simplexml
+
+
+
+
+    Please find my php.dockerfile here-with. I have already enabled mysqli and nd_mysql
+
+    FROM php:7.2-fpm-alpine
+      
+    RUN docker-php-ext-install nd_mysqli pdo pdo_mysql && docker-php-ext-enable nd_mysqli
+
+Viewing 2 replies - 1 through 2 (of 2 total)
+
+    The topic ‘[Docker] Uncaught Error: Call to undefined function mysql_connect()’ is closed to new replies.
+
+
+- Buildando
+docker-compose down
+docker-compose build --no-cache
+docker-compose up -d
+
+
+
+
+Step 10/18 : RUN docker-php-ext-install nd_mysqli pdo pdo_mysql && docker-php-ext-enable nd_mysqli
+ ---> Running in 9a242ad9ac3c
+error: /usr/src/php/ext/nd_mysqli does not exist
+
+usage: /usr/local/bin/docker-php-ext-install [-jN] [--ini-name file.ini] ext-name [ext-name ...]
+   ie: /usr/local/bin/docker-php-ext-install gd mysqli
+       /usr/local/bin/docker-php-ext-install pdo pdo_mysql
+       /usr/local/bin/docker-php-ext-install -j5 gd mbstring mysqli pdo pdo_mysql shmop
+
+if custom ./configure arguments are necessary, see docker-php-ext-configure
+
+Possible values for ext-name:
+bcmath bz2 calendar ctype curl dba dl_test dom enchant exif ffi fileinfo filter ftp gd gettext gmp hash iconv imap intl json ldap mbstring mysqli oci8 odbc opcache pcntl pdo pdo_dblib pdo_firebird pdo_mysql pdo_oci pdo_odbc pdo_pgsql pdo_sqlite pgsql phar posix pspell readline reflection session shmop simplexml snmp soap sockets sodium spl standard sysvmsg sysvsem sysvshm tidy tokenizer xml xmlreader xmlwriter xsl zend_test zip
+
+Some of the above modules are already compiled into PHP; please check
+the output of "php -i" to see which modules are already loaded.
+The command '/bin/sh -c docker-php-ext-install nd_mysqli pdo pdo_mysql && docker-php-ext-enable nd_mysqli' returned a non-zero code: 1
+ERROR: Service 'wordpress' failed to build : Build failed
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/wordpress-php-fpm-alpine-nginx-4$
+
+
+
+DE:
+RUN docker-php-ext-install nd_mysqli pdo pdo_mysql && docker-php-ext-enable nd_mysqli
+PARA:
+
+
+
+- Buildando
+docker-compose down
+docker-compose build --no-cache
+docker-compose up -d
+
+
+Fatal error: Uncaught Error: Call to undefined function mysql_connect() in /var/www/html/wp-includes/wp-db.php:1788 Stack trace: #0 /var/www/html/wp-includes/wp-db.php(724): wpdb->db_connect() #1 /var/www/html/wp-includes/load.php(561): wpdb->__construct('fernandomuller', 'senhafraca123', 'wordpress', 'db:3306') #2 /var/www/html/wp-settings.php(124): require_wp_db() #3 /var/www/html/wp-config.php(133): require_once('/var/www/html/w...') #4 /var/www/html/wp-load.php(50): require_once('/var/www/html/w...') #5 /var/www/html/wp-blog-header.php(13): require_once('/var/www/html/w...') #6 /var/www/html/index.php(17): require('/var/www/html/w...') #7 {main} thrown in /var/www/html/wp-includes/wp-db.php on line 1788
+
+
+
+
+- Entrando no container do Wordpress
+docker container exec -ti wordpress-php-fpm-alpine  bash
+
+
+bash-5.1# cat wp-config.php | grep -i sql
+define( 'DB_HOST', getenv_docker('WORDPRESS_DB_HOST', 'mysql') );
+bash-5.1#
+
+
+
+bash-5.1# pwd
+/var/www/html
+bash-5.1# cat /etc/php8/php.ini | grep -i sql
+;   extension=mysqli
+;   extension=/path/to/extension/mysqli.so
+;extension=mysqli
+;extension=pdo_mysql
+;extension=pdo_pgsql
+;extension=pdo_sqlite
+;extension=pgsql
+;extension=sqlite3
+[sqlite3]
+; Directory pointing to SQLite3 extensions
+; http://php.net/sqlite3.extension-dir
+;sqlite3.extension_dir =
+; SQLite defensive mode flag (only available from SQLite 3.26+)
+; SQL to deliberately corrupt the database file are disabled. This forbids
+; the sqlite_dbpage virtual table.
+; https://www.sqlite.org/c3ref/c_dbconfig_defensive.html
+; (for older SQLite versions, this flag has no use)
+;sqlite3.defensive = 1
+[Pdo_mysql]
+; Default socket name for local MySQL connects.  If empty, uses the built-in
+; MySQL defaults.
+pdo_mysql.default_socket=
+; Default: SQL_CURSOR_STATIC (default).
+[MySQLi]
+; http://php.net/mysqli.max-persistent
+mysqli.max_persistent = -1
+; http://php.net/mysqli.allow_local_infile
+;mysqli.allow_local_infile = On
+; http://php.net/mysqli.allow-persistent
+mysqli.allow_persistent = On
+; http://php.net/mysqli.max-links
+mysqli.max_links = -1
+; Default port number for mysqli_connect().  If unset, mysqli_connect() will use
+; the $MYSQL_TCP_PORT or the mysql-tcp entry in /etc/services or the
+; compile-time value defined MYSQL_PORT (in that order).  Win32 will only look
+; at MYSQL_PORT.
+; http://php.net/mysqli.default-port
+mysqli.default_port = 3306
+; Default socket name for local MySQL connects.  If empty, uses the built-in
+; MySQL defaults.
+; http://php.net/mysqli.default-socket
+mysqli.default_socket =
+; Default host for mysqli_connect() (doesn't apply in safe mode).
+; http://php.net/mysqli.default-host
+mysqli.default_host =
+; Default user for mysqli_connect() (doesn't apply in safe mode).
+; http://php.net/mysqli.default-user
+mysqli.default_user =
+; Default password for mysqli_connect() (doesn't apply in safe mode).
+; *Any* user with PHP access can run 'echo get_cfg_var("mysqli.default_pw")
+; http://php.net/mysqli.default-pw
+mysqli.default_pw =
+mysqli.reconnect = Off
+[mysqlnd]
+; Enable / Disable collection of general statistics by mysqlnd which can be
+; used to tune and monitor MySQL operations.
+mysqlnd.collect_statistics = On
+; Enable / Disable collection of memory usage statistics by mysqlnd which can be
+; used to tune and monitor MySQL operations.
+mysqlnd.collect_memory_statistics = Off
+; Records communication from all extensions using mysqlnd to the specified log
+; http://php.net/mysqlnd.debug
+;mysqlnd.debug =
+;mysqlnd.log_mask = 0
+; Default size of the mysqlnd memory pool, which is used by result sets.
+;mysqlnd.mempool_default_size = 16000
+; Size of a pre-allocated buffer used when sending commands to MySQL in bytes.
+;mysqlnd.net_cmd_buffer_size = 2048
+;mysqlnd.net_read_buffer_size = 32768
+;mysqlnd.net_read_timeout = 31536000
+; SHA-256 Authentication Plugin related. File with the MySQL server public RSA
+;mysqlnd.sha256_server_public_key =
+[PostgreSQL]
+; http://php.net/pgsql.allow-persistent
+pgsql.allow_persistent = On
+; http://php.net/pgsql.auto-reset-persistent
+pgsql.auto_reset_persistent = Off
+; http://php.net/pgsql.max-persistent
+pgsql.max_persistent = -1
+; http://php.net/pgsql.max-links
+pgsql.max_links = -1
+; Ignore PostgreSQL backends Notice message or not.
+; http://php.net/pgsql.ignore-notice
+pgsql.ignore_notice = 0
+; Log PostgreSQL backends Notice message or not.
+; Unless pgsql.ignore_notice=0, module cannot log notice message.
+; http://php.net/pgsql.log-notice
+pgsql.log_notice = 0
+bash-5.1#
+
+
+
+
+
+- 
+
+RUN docker-php-ext-install pdo pdo_mysql && docker-php-ext-enable pdo_mysql
+COPY ./php.ini /etc/php8/php.ini
+
+
+- Buildando
+docker-compose down
+docker-compose build --no-cache
+docker-compose up -d
+
+
+- Entrando no container do Wordpress
+docker container exec -ti wordpress-php-fpm-alpine bash
+
+- Efetuado ajuste no php.ini, ativando algumas extensões.
+- Segue com errro:
+
+~~~~bash
+Fatal error: Uncaught Error: Call to undefined function mysql_connect() in /var/www/html/wp-includes/wp-db.php:1788 Stack trace: #0 /var/www/html/wp-includes/wp-db.php(724): wpdb->db_connect() #1 /var/www/html/wp-includes/load.php(561): wpdb->__construct('fernandomuller', 'senhafraca123', 'wordpress', 'db:3306') #2 /var/www/html/wp-settings.php(124): require_wp_db() #3 /var/www/html/wp-config.php(133): require_once('/var/www/html/w...') #4 /var/www/html/wp-load.php(50): require_once('/var/www/html/w...') #5 /var/www/html/wp-blog-header.php(13): require_once('/var/www/html/w...') #6 /var/www/html/index.php(17): require('/var/www/html/w...') #7 {main} thrown in /var/www/html/wp-includes/wp-db.php on line 1788
+~~~~
+
+
+
+- No upgrade do Dockerfile, para usar Multistage, é obtido pouco ganho no tamanho da imagem:
+DE:
+PARA:
+245MB
+- E também ocorre o erro do mysql_connect() na página.
+- Pode ser averiguado o motivo, talvez seja no código do WP ou no PHP(arquivos ini, conf, etc)
+
+
+- Boilerplate OK do WORDPRESS+NGINX+MYSQL com versões atualizadas:
+/home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao5/boilerplates/wordpress-php-fpm-alpine-nginx-OK-atualizadas
+
+
+- Buildando
+cd /home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao5/boilerplates/wordpress-php-fpm-alpine-nginx-OK-atualizadas
+docker-compose down
+docker-compose build --no-cache
+docker-compose up -d
+
+
+- IMAGEM FICOU EM 305MB
+~~~~bash
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/boilerplates/wordpress-php-fpm-alpine-nginx-OK-atualizadas$ docker image ls | grep "php8.1-fpm-alpine"
+fernandomj90/wordpress-php8.1-fpm-alpine                                        v1                   8658095aa795   15 minutes ago   245MB
+wordpress                                                                       php8.1-fpm-alpine    ee48600d8b6c   3 weeks ago      305MB
+~~~~
+
+
+
+# RESPOSTA
+- Entregar o boilerplate
+- Boilerplate OK do WORDPRESS+NGINX+MYSQL com versões atualizadas:
+/home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao5/boilerplates/wordpress-php-fpm-alpine-nginx-OK-atualizadas
