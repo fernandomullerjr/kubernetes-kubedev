@@ -1,4 +1,6 @@
 make all --print-data-base --no-builtin-variables --no-builtin-rules --question
+make: *** No rule to make target 'all'.  Stop.
+
 # GNU Make 4.2.1
 # Built for x86_64-pc-linux-gnu
 # Copyright (C) 1988-2016 Free Software Foundation, Inc.
@@ -6,7 +8,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Sun Jul  3 10:33:25 2022
+# Make data base, printed on Sun Jul 31 11:27:28 2022
 
 # Variables
 
@@ -22,8 +24,6 @@ XDG_SESSION_CLASS = user
 VSCODE_AGENT_FOLDER = /home/fernando/.vscode-server
 # environment
 XDG_SESSION_TYPE = tty
-# environment
-VSCODE_LOG_NATIVE = false
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # automatic
@@ -39,7 +39,7 @@ SHELL = /bin/sh
 # environment
 VSCODE_NLS_CONFIG = {"locale":"en","availableLanguages":{}}
 # environment
-_ = /home/fernando/.vscode-server/bin/30d9c6cd9483b2cc586687151bcbcd635f373630/node
+_ = /home/fernando/.vscode-server/bin/3b889b090b5ad5793f524b5d1d39fda662b96a2a/node
 # makefile
 MAKEFILE_LIST := 
 # 'override' directive
@@ -49,29 +49,21 @@ XDG_DATA_DIRS = /usr/local/share:/usr/share:/var/lib/snapd/desktop
 # environment
 DBUS_SESSION_BUS_ADDRESS = unix:path=/run/user/1000/bus
 # environment
-VSCODE_VERBOSE_LOGGING = true
-# environment
 VSCODE_CWD = /home/fernando
 # environment
-GOPROXY = https://proxy.golang.org,direct
+SSH_CONNECTION = 192.168.0.108 59481 192.168.0.113 22
 # environment
-SSH_CONNECTION = 192.168.0.108 60295 192.168.0.113 22
-# environment
-PATH = /usr/local/go/bin:/home/fernando/.vscode-server/bin/30d9c6cd9483b2cc586687151bcbcd635f373630/bin/remote-cli:/home/fernando/.serverless/bin:/home/fernando/.serverless/bin:/home/fernando/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/snap/bin
+PATH = /home/fernando/.vscode-server/bin/3b889b090b5ad5793f524b5d1d39fda662b96a2a/bin/remote-cli:/home/fernando/.serverless/bin:/home/fernando/.serverless/bin:/home/fernando/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/snap/bin
 # environment
 XDG_RUNTIME_DIR = /run/user/1000
 # environment
-GOPATH = /home/fernando/go
+ELECTRON_RUN_AS_NODE = 1
 # environment
-VSCODE_LOG_STACK = false
-# environment
-VSCODE_IPC_HOOK_CLI = /run/user/1000/vscode-ipc-e4549e96-518f-4928-b0b4-3f4fd79981e9.sock
+VSCODE_IPC_HOOK_CLI = /run/user/1000/vscode-ipc-acb514d3-8d51-45aa-b757-c9ef29faa461.sock
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # automatic
 %F = $(notdir $%)
-# environment
-VSCODE_PIPE_LOGGING = true
 # environment
 PWD = /home/fernando/cursos/kubedev
 # default
@@ -101,7 +93,7 @@ MAKECMDGOALS := all
 # environment
 SHLVL = 0
 # environment
-XDG_SESSION_ID = 3
+XDG_SESSION_ID = 2
 # environment
 USER = fernando
 # makefile
@@ -121,13 +113,13 @@ MAKEFLAGS = pqrR
 # environment
 MFLAGS = -pqrR
 # environment
-SSH_CLIENT = 192.168.0.108 60295 22
+SSH_CLIENT = 192.168.0.108 59481 22
 # environment
 MAIL = /var/mail/fernando
 # automatic
 +D = $(patsubst %/,%,$(dir $+))
 # environment
-BROWSER = /home/fernando/.vscode-server/bin/30d9c6cd9483b2cc586687151bcbcd635f373630/bin/helpers/browser.sh
+BROWSER = /home/fernando/.vscode-server/bin/3b889b090b5ad5793f524b5d1d39fda662b96a2a/bin/helpers/browser.sh
 # environment
 VSCODE_HANDLES_SIGPIPE = true
 # default
@@ -148,10 +140,8 @@ SUFFIXES :=
 MAKE_HOST := x86_64-pc-linux-gnu
 # environment
 LANG = C
-# environment
-VSCODE_EXTHOST_WILL_SEND_SOCKET = true
 # variable set hash-table stats:
-# Load=70/1024=7%, Rehash=0, Collisions=9/92=10%
+# Load=64/1024=6%, Rehash=0, Collisions=9/86=10%
 
 # Pattern-specific Variable Values
 
@@ -217,8 +207,6 @@ GNUmakefile:
 # strcache performance: lookups = 29 / hit rate = 10%
 # hash-table stats:
 # Load=26/8192=0%, Rehash=0, Collisions=2/29=7%
-# Finished Make data base on Sun Jul  3 10:33:25 2022
+# Finished Make data base on Sun Jul 31 11:27:28 2022
 
  
-make: *** No rule to make target 'all'.  Stop.
-

@@ -1857,3 +1857,61 @@ wordpress                                                                       
 - Entregar o boilerplate
 - Boilerplate OK do WORDPRESS+NGINX+MYSQL com versões atualizadas:
 /home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao5/boilerplates/wordpress-php-fpm-alpine-nginx-OK-atualizadas
+
+# PENDENTE
+- Ajustar conteúdo na pasta:
+/home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao5/desafio-docker-questao5-wordpress
+- Efetuar o push.
+
+
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/desafio-docker-questao5-wordpress$ docker ps
+CONTAINER ID   IMAGE                         COMMAND                  CREATED         STATUS         PORTS                               NAMES
+29d3185ec5e7   nginx:1.23.0-alpine           "/docker-entrypoint.…"   2 minutes ago   Up 2 minutes   0.0.0.0:80->80/tcp, :::80->80/tcp   webserver
+bb0a51b82cea   wordpress:php8.1-fpm-alpine   "docker-entrypoint.s…"   2 minutes ago   Up 2 minutes   9000/tcp                            wordpress
+a4851ac1609d   mysql:8.0                     "docker-entrypoint.s…"   2 minutes ago   Up 2 minutes   3306/tcp, 33060/tcp                 db
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/desafio-docker-questao5-wordpress$
+
+
+git remote remove https://github.com/TrafeX/docker-wordpress.git
+
+git remote add origin git@github.com:fernandomullerjr/terraform-aws.git
+git@github.com:fernandomullerjr/desafio-docker-questao5-wordpress.git
+git remote add origin git@github.com:fernandomullerjr/desafio-docker-questao5-wordpress.git
+
+
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/desafio-docker-questao5-wordpress$ git remote add origin git@github.com:fernandomullerjr/desafio-docker-questao5-wordpress.git
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/desafio-docker-questao5-wordpress$ git remote -v
+origin  git@github.com:fernandomullerjr/desafio-docker-questao5-wordpress.git (fetch)
+origin  git@github.com:fernandomullerjr/desafio-docker-questao5-wordpress.git (push)
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao5/desafio-docker-questao5-wordpress$
+
+
+- ok
+https://github.com/fernandomullerjr/desafio-docker-questao5-wordpress
+
+
+
+
+
+# Dia 31/07/2022
+
+
+
+# ########################################################################################################################################
+# ########################################################################################################################################
+# ########################################################################################################################################
+# ########################################################################################################################################
+# ########################################################################################################################################
+#  RESPOSTA
+RESPOSTA
+
+- Entregar o boilerplate
+- Boilerplate OK do WORDPRESS+NGINX+MYSQL com versões atualizadas:
+/home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao5/boilerplates/wordpress-php-fpm-alpine-nginx-OK-atualizadas
+- Boilerplate foi ajustado e movimentado para a pasta:
+/home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao5/desafio-docker-questao5-wordpress
+- Que foi pushado para o repositório:
+<https://github.com/fernandomullerjr/desafio-docker-questao5-wordpress>
+
+- RESPOSTA, entregar o repo:
+<https://github.com/fernandomullerjr/desafio-docker-questao5-wordpress>

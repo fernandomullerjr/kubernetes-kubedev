@@ -2290,6 +2290,18 @@ fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-pota
 - Para o caso de arquivos que são copiados no build, o volume pode não ser interessante.
 
 
+- Diretório valendo:
+
+~~~~bash
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$ git remote -v
+origin  git@github.com:fernandomullerjr/rotten-potatoes.git (fetch)
+origin  git@github.com:fernandomullerjr/rotten-potatoes.git (push)
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$ pwd
+/home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-potatoes$
+~~~~
+
+
 # PENDENTE
 - Fazer KB da solução sobre o caso do volume do MongoDB, sobre o caso do volume do APP que impacta o COPY.
 - Preencher o README.
@@ -2301,3 +2313,28 @@ fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao4/rotten-pota
 # Dia 16/06/2022
 
 - Efetuado KB do Mongo e do Gunicorn.
+
+
+
+
+# Dia 31/07/2022
+
+- Efetuando revisão da resposta:
+
+
+
+
+
+
+# ########################################################################################################################################
+# ########################################################################################################################################
+# ########################################################################################################################################
+# ########################################################################################################################################
+# ########################################################################################################################################
+#  RESPOSTA
+RESPOSTA
+
+## Aplicação escrita em Python utilizando Flask - Desafio Docker - Questão 4
+
+- Endereço do repositório:
+<https://github.com/fernandomullerjr/rotten-potatoes>
