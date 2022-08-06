@@ -965,8 +965,20 @@ requests.exceptions.ConnectionError: HTTPConnectionPool(host='review', port=8282
 
 
 
+
+
+- Fazendo push
+eval $(ssh-agent -s)
+ssh-add /home/fernando/.ssh/chave-debian10-github
+git add .
+git commit -m "Questão 6 - Desafio Docker - Microserviços"
+git push
+
+
+
 # PENDENTE
 - Analisar a causa dos erros nos Reviews
--
+- Testar usando telnet do Container do Flask para porta 8282 do review.
+- Revisar código, listen, port, etc
 - Seguir exemplo:
 <https://github.com/nossadiretiva/rotten-potatoes-ms>
