@@ -1,0 +1,129 @@
+version: '3'
+services:
+
+  flask:
+    build:
+      context: ./rotten-potatoes-ms
+      dockerfile: Dockerfile-Python.dockerfile
+    container_name: flask
+    image: fernandomj90/app-rotten-potatoes-microservicos:v1
+    ports:
+      - 5000:5000
+    environment:
+      APP_PORT: 5000
+      MONGODB_DB: admin
+      MONGODB_DATABASE: admin
+      MONGODB_USERNAME: mongouser
+      MONGODB_PASSWORD: mongopwd
+      MONGODB_HOSTNAME: mongodb
+      MONGODB_HOST: mongodb
+      MONGODB_PORT: 27017
+#    env_file:
+#    - your-env-file.env
+#    volumes:
+#      - appvolume:/app
+    depends_on:
+      - mongodb
+    networks:
+      - frontend
+      - backend
+
+  mongodb:
+    image: mongo:4.0.8
+    container_name: mongodb
+    restart: unless-stopped
+    command: mongod --auth
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongouser
+      MONGO_INITDB_ROOT_PASSWORD: mongopwd
+      MONGO_INITDB_DATABASE: admin
+      MONGODB_DATABASE: admin
+      MONGODB_USER: mongouser
+      MONGODB_PASS: mongopwd
+      MONGODB_DATA_DIR: /data/db
+      MONDODB_LOG_DIR: /dev/null
+#    env_file:
+#    - your-env-file.env
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodbdata:/data/db
+    networks:
+      - backend
+
+  movies:
+    image: fernandomj90/app-rotten-potatoes-movies:v1
+    container_name: movies
+    build:
+      context: ./movie/src
+      dockerfile: Dockerfile-NodeJS.dockerfile
+    ports:
+      - "8181:8181"
+    networks:
+      - backend
+    depends_on:
+      - mongodb
+    environment:
+      - MONGODB_URI=mongodb://mongouser:mongopwd@mongodb:27017/admin
+
+  postgres:
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=pguser
+      - POSTGRES_PASSWORD=Pg@123
+    ports:
+      - '5432:5432'
+    volumes: 
+      - postgresdb:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  review:
+    build:
+      context: ./review/src/Review.Web/
+      dockerfile: Dockerfile-C-Sharp.dockerfile
+    container_name: review
+    image: fernandomj90/app-rotten-potatoes-review:v1
+    ports:
+      - 8282:8282
+    depends_on:
+      - postgres
+    networks:
+      - frontend
+      - backend
+
+#  webserver:
+#    build:
+#      context: nginx
+#      dockerfile: Dockerfile
+#    image: fernandomj90/nginx-alpine-desafio-docker:3.15.4
+#    container_name: webserver
+#    restart: unless-stopped
+#    tty: true
+#    environment:
+#      APP_ENV: "prod"
+#      APP_NAME: "webserver"
+#      APP_DEBUG: "true"
+#      SERVICE_NAME: "webserver"
+#    ports:
+#      - "80:80"
+#      - "443:443"
+#    volumes:
+#      - nginxdata:/var/log/nginx
+#    depends_on:
+#      - flask
+#    networks:
+#      - frontend
+
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+
+volumes:
+  mongodbdata:
+  postgresdb:
+#  appvolume:
+#  nginxdata:

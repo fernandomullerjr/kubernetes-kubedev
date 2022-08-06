@@ -8,7 +8,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Sun Jul 31 11:27:28 2022
+# Make data base, printed on Sat Aug  6 15:55:34 2022
 
 # Variables
 
@@ -39,7 +39,7 @@ SHELL = /bin/sh
 # environment
 VSCODE_NLS_CONFIG = {"locale":"en","availableLanguages":{}}
 # environment
-_ = /home/fernando/.vscode-server/bin/3b889b090b5ad5793f524b5d1d39fda662b96a2a/node
+_ = /home/fernando/.vscode-server/bin/da76f93349a72022ca4670c1b84860304616aaa2/node
 # makefile
 MAKEFILE_LIST := 
 # 'override' directive
@@ -51,15 +51,19 @@ DBUS_SESSION_BUS_ADDRESS = unix:path=/run/user/1000/bus
 # environment
 VSCODE_CWD = /home/fernando
 # environment
-SSH_CONNECTION = 192.168.0.108 59481 192.168.0.113 22
+GOPROXY = https://proxy.golang.org,direct
 # environment
-PATH = /home/fernando/.vscode-server/bin/3b889b090b5ad5793f524b5d1d39fda662b96a2a/bin/remote-cli:/home/fernando/.serverless/bin:/home/fernando/.serverless/bin:/home/fernando/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/snap/bin
+SSH_CONNECTION = 192.168.0.108 58294 192.168.0.113 22
+# environment
+PATH = /usr/local/go/bin:/home/fernando/.vscode-server/bin/da76f93349a72022ca4670c1b84860304616aaa2/bin/remote-cli:/home/fernando/.serverless/bin:/home/fernando/.serverless/bin:/home/fernando/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/snap/bin
 # environment
 XDG_RUNTIME_DIR = /run/user/1000
 # environment
+GOPATH = /home/fernando/go
+# environment
 ELECTRON_RUN_AS_NODE = 1
 # environment
-VSCODE_IPC_HOOK_CLI = /run/user/1000/vscode-ipc-acb514d3-8d51-45aa-b757-c9ef29faa461.sock
+VSCODE_IPC_HOOK_CLI = /run/user/1000/vscode-ipc-573b2817-fed4-4efa-9741-6d861cfaeb73.sock
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # automatic
@@ -102,6 +106,8 @@ USER = fernando
 %D = $(patsubst %/,%,$(dir $%))
 # default
 MAKE_COMMAND := make
+# environment
+OLDPWD = /home/fernando/.vscode-server/bin/da76f93349a72022ca4670c1b84860304616aaa2
 # default
 .VARIABLES := 
 # automatic
@@ -113,13 +119,13 @@ MAKEFLAGS = pqrR
 # environment
 MFLAGS = -pqrR
 # environment
-SSH_CLIENT = 192.168.0.108 59481 22
+SSH_CLIENT = 192.168.0.108 58294 22
 # environment
 MAIL = /var/mail/fernando
 # automatic
 +D = $(patsubst %/,%,$(dir $+))
 # environment
-BROWSER = /home/fernando/.vscode-server/bin/3b889b090b5ad5793f524b5d1d39fda662b96a2a/bin/helpers/browser.sh
+BROWSER = /home/fernando/.vscode-server/bin/da76f93349a72022ca4670c1b84860304616aaa2/bin/helpers/browser.sh
 # environment
 VSCODE_HANDLES_SIGPIPE = true
 # default
@@ -141,7 +147,7 @@ MAKE_HOST := x86_64-pc-linux-gnu
 # environment
 LANG = C
 # variable set hash-table stats:
-# Load=64/1024=6%, Rehash=0, Collisions=9/86=10%
+# Load=67/1024=7%, Rehash=0, Collisions=9/89=10%
 
 # Pattern-specific Variable Values
 
@@ -207,6 +213,6 @@ GNUmakefile:
 # strcache performance: lookups = 29 / hit rate = 10%
 # hash-table stats:
 # Load=26/8192=0%, Rehash=0, Collisions=2/29=7%
-# Finished Make data base on Sun Jul 31 11:27:28 2022
+# Finished Make data base on Sat Aug  6 15:55:34 2022
 
  
