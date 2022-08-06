@@ -749,3 +749,224 @@ ENTRYPOINT ["dotnet", "ConversaoPeso.Web.dll"]
 aula56-Desafio-Docker/questao6/review/src/Review.Web/Dockerfile-C-Sharp.dockerfile
 aula56-Desafio-Docker/questao6/docker-compose.yml
 aula56-Desafio-Docker/questao6/review/src/Review.Web/appsettings.json
+
+
+- Efetuar teste:
+docker-compose up -d
+docker exec -ti flask sh
+curl localhost:5000
+
+
+
+- Fazendo push
+eval $(ssh-agent -s)
+ssh-add /home/fernando/.ssh/chave-debian10-github
+git add .
+git commit -m "Questão 6 - Desafio Docker - Microserviços"
+git push
+
+
+
+- Containers subiram, necessário validar tudo:
+
+~~~~bash
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao6$ docker ps
+CONTAINER ID   IMAGE                                               COMMAND                  CREATED          STATUS          PORTS                                           NAMES
+3f1866148baa   postgres:14.1-alpine                                "docker-entrypoint.s…"   8 seconds ago    Up 7 seconds    0.0.0.0:5432->5432/tcp, :::5432->5432/tcp       postgres
+82aee1457a6b   fernandomj90/app-rotten-potatoes-movies:v1          "docker-entrypoint.s…"   42 seconds ago   Up 39 seconds   0.0.0.0:8181->8181/tcp, :::8181->8181/tcp       movies
+aae305403b56   fernandomj90/app-rotten-potatoes-review:v1          "dotnet Review.Web.d…"   53 seconds ago   Up 52 seconds   0.0.0.0:8282->8282/tcp, :::8282->8282/tcp       review
+85890ad6685c   fernandomj90/app-rotten-potatoes-microservicos:v1   "python app.py"          45 minutes ago   Up 45 minutes   0.0.0.0:5000->5000/tcp, :::5000->5000/tcp       flask
+3ad60f9d1885   mongo:4.0.8                                         "docker-entrypoint.s…"   45 minutes ago   Up 45 minutes   0.0.0.0:27017->27017/tcp, :::27017->27017/tcp   mongodb
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao6$
+~~~~
+
+
+
+
+- Entrando no Container do Flask e testando:
+docker exec -ti flask sh
+
+
+
+- Sem comunicação com o Review
+
+~~~~bash
+/app #
+/app # curl review:8182 | head
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0curl: (7) Failed to connect to review port 8182: Connection refused
+/app # curl review:8282 | head
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0curl: (7) Failed to connect to review port 8282: Connection refused
+/app # curl review:8282
+curl: (7) Failed to connect to review port 8282: Connection refused
+/app # curl review:8282/app
+curl: (7) Failed to connect to review port 8282: Connection refused
+/app # fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao6$
+~~~~
+
+
+
+
+- Adicionando no docker-compose o nome do banco de dados do Postgres
+  - POSTGRES_DB=pguser
+
+
+
+
+# PENDENTE
+- Gunicorn para expor o Flask.
+- Variáveis de ambiente no Flask.
+- Seguir exemplo:
+<https://github.com/nossadiretiva/rotten-potatoes-ms>
+
+
+- Adicionando variáveis no Flask:
+    environment:
+      MOVIE_SERVICE_URI: http://movies:8181
+      REVIEW_SERVICE_URI: http://review:8282
+
+
+- Backup do Dockerfile do Flask atual:
+
+~~~~Dockerfile
+FROM python:3.6.1-alpine
+RUN pip install --upgrade pip
+RUN apk add --no-cache jpeg-dev zlib-dev
+RUN apk add --no-cache --virtual .build-deps build-base linux-headers \
+    && pip install Pillow
+RUN pip install -U pip setuptools wheel
+RUN pip install markupsafe
+RUN pip install flask
+COPY ./src/app.py /app.py
+COPY ./src/requirements.txt /app/requirements.txt
+WORKDIR /app
+RUN pip install --no-cache-dir -r /app/requirements.txt
+COPY ./src .
+EXPOSE 5000
+CMD ["python","app.py"]
+~~~~
+
+
+- Novo Dockerfile, contendo o Gunicorn como servidor Web:
+
+~~~~Dockerfile
+FROM python:3.6.1-alpine
+RUN pip install --upgrade pip
+RUN apk add --no-cache jpeg-dev zlib-dev
+RUN apk add --no-cache --virtual .build-deps build-base linux-headers \
+    && pip install Pillow
+RUN pip install -U pip setuptools wheel
+RUN pip install markupsafe
+RUN pip install flask
+RUN pip install gunicorn
+COPY ./src/app.py /app.py
+COPY ./src/requirements.txt /app/requirements.txt
+WORKDIR /app
+RUN pip install --no-cache-dir -r /app/requirements.txt
+COPY ./src .
+
+ENV FLASK_APP=./app.py
+ENV FLASK_ENV=development
+
+EXPOSE 5000
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
+~~~~
+
+
+
+
+
+
+
+
+- Testando
+docker-compose up -d
+
+
+
+- Deletado o container e a imagem do flask para recriar.
+- Recriando.
+- Subiram:
+
+~~~~bash
+Successfully built 87ea98742aea
+Successfully tagged fernandomj90/app-rotten-potatoes-microservicos:v1
+WARNING: Image for service flask was built because it did not already exist. To rebuild this image you must use `docker-compose build` or `docker-compose up --build`.
+postgres is up-to-date
+mongodb is up-to-date
+review is up-to-date
+movies is up-to-date
+Creating flask ... done
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao6$ docker ps
+CONTAINER ID   IMAGE                                               COMMAND                  CREATED          STATUS          PORTS                                           NAMES
+e0aaeacd5d39   fernandomj90/app-rotten-potatoes-microservicos:v1   "gunicorn --bind 0.0…"   22 seconds ago   Up 21 seconds   0.0.0.0:5000->5000/tcp, :::5000->5000/tcp       flask
+e74ad33db2bb   fernandomj90/app-rotten-potatoes-movies:v1          "docker-entrypoint.s…"   2 minutes ago    Up 2 minutes    0.0.0.0:8181->8181/tcp, :::8181->8181/tcp       movies
+f20c248a6b40   fernandomj90/app-rotten-potatoes-review:v1          "dotnet Review.Web.d…"   2 minutes ago    Up 2 minutes    0.0.0.0:8282->80/tcp, :::8282->80/tcp           review
+928fa96728a8   mongo:4.0.8                                         "docker-entrypoint.s…"   2 minutes ago    Up 2 minutes    0.0.0.0:27017->27017/tcp, :::27017->27017/tcp   mongodb
+9d155f0e2ae2   postgres:14.1-alpine                                "docker-entrypoint.s…"   2 minutes ago    Up 2 minutes    0.0.0.0:5432->5432/tcp, :::5432->5432/tcp       postgres
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao6$
+~~~~
+
+- Acessível via:
+<http://192.168.0.113:5000/>
+
+
+
+
+- Apresentando falha ao tentar acessar um Review especifico:
+- Via navegador:
+<http://192.168.0.113:5000/single/62eed38ec377837c095d415a>
+
+- No container do Flask tem erros:
+
+requests.exceptions.ConnectionError: HTTPConnectionPool(host='review', port=8282): Max retries exceeded with url: /api/review/62eed38ec377837c095d415a (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f1ffb50eda0>: Failed to establish a new connection: [Errno 111] Connection refused',))
+
+
+
+
+
+- No arquivo review.py o host está como localhost:
+/home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao6/rotten-potatoes-ms/src/services/review.py
+- Necessário ajustar para o nome do container do Review.
+
+DE:
+
+~~~~python
+class ReviewService:
+
+    def __init__(self):
+        self.base_url = os.getenv("REVIEW_SERVICE_URI", "http://localhost:8282")
+~~~~
+
+PARA:
+
+~~~~python
+class ReviewService:
+
+    def __init__(self):
+        self.base_url = os.getenv("REVIEW_SERVICE_URI", "http://review:8282")
+~~~~
+
+
+
+
+
+- Segue com erro:
+
+- Apresentando falha ao tentar acessar um Review especifico:
+- Via navegador:
+<http://192.168.0.113:5000/single/62eed38ec377837c095d415a>
+
+- No container do Flask tem erros:
+requests.exceptions.ConnectionError: HTTPConnectionPool(host='review', port=8282): Max retries exceeded with url: /api/review/62eed38ec377837c095d4152 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f17311e1908>: Failed to establish a new connection: [Errno 111] Connection refused',))
+
+
+
+# PENDENTE
+- Analisar a causa dos erros nos Reviews
+-
+- Seguir exemplo:
+<https://github.com/nossadiretiva/rotten-potatoes-ms>

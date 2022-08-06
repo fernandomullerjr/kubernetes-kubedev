@@ -18,6 +18,8 @@ services:
       MONGODB_HOSTNAME: mongodb
       MONGODB_HOST: mongodb
       MONGODB_PORT: 27017
+      MOVIE_SERVICE_URI: http://movies:8181
+      REVIEW_SERVICE_URI: http://review:8282
 #    env_file:
 #    - your-env-file.env
 #    volumes:
@@ -69,9 +71,11 @@ services:
   postgres:
     image: postgres:14.1-alpine
     restart: always
+    container_name: postgres
     environment:
       - POSTGRES_USER=pguser
       - POSTGRES_PASSWORD=Pg@123
+      - POSTGRES_DB=pguser
     ports:
       - '5432:5432'
     volumes: 
@@ -86,7 +90,7 @@ services:
     container_name: review
     image: fernandomj90/app-rotten-potatoes-review:v1
     ports:
-      - 8282:8282
+      - 8282:80
     depends_on:
       - postgres
     networks:
