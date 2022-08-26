@@ -976,9 +976,64 @@ git push
 
 
 
+- Status atual:
+1 - Python acessivel via  curl localhost:5000
+2 - Python não está acessível via browser na 192.168.0.113:5000
+3 - Movies acessível via  curl movies:8181/api/movie 
+4 - Movies acessível via Browser na http://192.168.0.113:8181/api/movie
+
+
+
 # PENDENTE
 - Analisar a causa dos erros nos Reviews
 - Testar usando telnet do Container do Flask para porta 8282 do review.
 - Revisar código, listen, port, etc
 - Seguir exemplo:
 <https://github.com/nossadiretiva/rotten-potatoes-ms>
+- Ajustar arquivos env, para não utilizar o env de dentro do Docker-compose, e sim em arquivos de Env.
+
+
+
+
+# DIA 25/08/2022
+
+- Logs de erro no container do Flask
+
+  File "/usr/local/lib/python3.6/site-packages/requests/api.py", line 61, in request
+    return session.request(method=method, url=url, **kwargs)
+  File "/usr/local/lib/python3.6/site-packages/requests/sessions.py", line 542, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/usr/local/lib/python3.6/site-packages/requests/sessions.py", line 655, in send
+    r = adapter.send(request, **kwargs)
+  File "/usr/local/lib/python3.6/site-packages/requests/adapters.py", line 516, in send
+    raise ConnectionError(e, request=request)
+requests.exceptions.ConnectionError: HTTPConnectionPool(host='review', port=8282): Max retries exceeded with url: /api/review/62eed38ec377837c095d4153 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7fdf44420a20>: Failed to establish a new connection: [Errno 111] Connection refused',))
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao6$
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao6$ pwd
+/home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao6
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao6$
+
+
+- Entrando no container do Flask
+docker container exec -ti flask sh
+
+
+/app # curl review:8282
+curl: (7) Failed to connect to review port 8282: Connection refused
+/app # curl review:8282/api/review/62eed38ec377837c095d4152
+]curl: (7) Failed to connect to review port 8282: Connection refused
+/app # ]
+
+
+
+
+
+# PENDENTE
+- Analisar a causa dos erros nos Reviews
+- Testar usando telnet do Container do Flask para porta 8282 do review.
+- Revisar código, listen, port, etc
+- Seguir exemplo:
+<https://github.com/nossadiretiva/rotten-potatoes-ms>
+- Ajustar arquivos env, para não utilizar o env de dentro do Docker-compose, e sim em arquivos de Env.
+
+
