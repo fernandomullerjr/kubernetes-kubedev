@@ -216,4 +216,80 @@ fernando@debian10x64:~/cursos/kubedev/aula75-Pod$
 
 - Para poder verificar a página do NGINX rodando, usaremos o comando kubectl port-forward.
 <https://kubernetes.io/docs/tasks/access-application-cluster/port-forward-access-application-cluster/>
-kubectl port-forward
+Forward a local port to a port on the Pod
+kubectl port-forward allows using resource name, such as a pod name, to select a matching pod to port forward to.
+# Change mongo-75f59d57f4-4nd6q to the name of the Pod
+kubectl port-forward mongo-75f59d57f4-4nd6q 28015:27017
+
+
+- Comando editado:
+kubectl port-forward meuprimeiropod 8080:80
+
+~~~~bash
+fernando@debian10x64:~/cursos/kubedev/aula75-Pod$ kubectl port-forward meuprimeiropod 8080:80
+Forwarding from 127.0.0.1:8080 -> 80
+Forwarding from [::1]:8080 -> 80
+~~~~
+
+
+
+- Fazendo push
+eval $(ssh-agent -s)
+ssh-add /home/fernando/.ssh/chave-debian10-github
+git add .
+git commit -m "Aula75 - Pod"
+git push
+
+
+
+- Página acessível via 8080:
+
+~~~~bash
+fernando@debian10x64:~/cursos/kubedev/aula75-Pod$ curl localhost:8080
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Welcome to nginx!</title>
+    <style>
+      body {
+        width: 35em;
+        margin: 0 auto;
+        background-color: blue;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Welcome to nginx!</h1>
+    <p>
+      If you see this page, the nginx web server is successfully installed and
+      working. Further configuration is required.
+    </p>
+
+    <p>
+      For online documentation and support please refer to
+      <a href="http://nginx.org/">nginx.org</a>.<br />
+      Commercial support is available at
+      <a href="http://nginx.com/">nginx.com</a>.
+    </p>
+
+    <p><em>Thank you for using nginx.</em></p>
+  </body>
+</html>
+fernando@debian10x64:~/cursos/kubedev/aula75-Pod$
+~~~~
+
+
+
+
+- Não consigo acessar de fora da VM, o node do Cluster não tem External IP:
+
+~~~~bash
+fernando@debian10x64:~/cursos/kubedev/aula75-Pod$ kubectl get nodes -o wide
+NAME       STATUS   ROLES                  AGE   VERSION   INTERNAL-IP    EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION    CONTAINER-RUNTIME
+minikube   Ready    control-plane,master   35m   v1.22.2   192.168.49.2   <none>        Ubuntu 20.04.2 LTS   4.19.0-17-amd64   docker://20.10.8
+~~~~
+
+
+
+- Esta maneira de criar o Pod não é a mais indicada, porque o Pod não tem escalabilidade e resiliencia.
