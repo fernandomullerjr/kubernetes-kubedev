@@ -1037,3 +1037,165 @@ curl: (7) Failed to connect to review port 8282: Connection refused
 - Ajustar arquivos env, para não utilizar o env de dentro do Docker-compose, e sim em arquivos de Env.
 
 
+
+
+# ########################################################################################################################################
+# ########################################################################################################################################
+# Dia 27/08/2022
+
+- Erro:
+<http://192.168.0.113:5000/single/62eed38ec377837c095d4158>
+
+
+environment:
+      ConnectionStrings__MyConnection: Host=postgresdb-movie;Database=review;Username=pguser;Password=Pg@123;
+
+
+
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao6$
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao6$ docker-compose up -d
+postgres is up-to-date
+mongodb is up-to-date
+Recreating review ...
+flask is up-to-date
+Recreating review ... done
+
+
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao6$ docker logs review
+crit: Microsoft.AspNetCore.Hosting.Diagnostics[6]
+      Application startup exception
+      System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (00000005, 0xFFFDFFFF): Name or service not known
+         at System.Net.Dns.GetHostEntryOrAddressesCore(String hostName, Boolean justAddresses)
+         at System.Net.Dns.GetHostAddresses(String hostNameOrAddress)
+         at Npgsql.NpgsqlConnector.Connect(NpgsqlTimeout timeout)
+
+
+
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao6$ docker ps
+CONTAINER ID   IMAGE                                               COMMAND                  CREATED       STATUS          PORTS                                           NAMES
+7f676d4958e5   fernandomj90/app-rotten-potatoes-microservicos:v1   "gunicorn --bind 0.0…"   3 weeks ago   Up 4 minutes    0.0.0.0:5000->5000/tcp, :::5000->5000/tcp       flask
+e74ad33db2bb   fernandomj90/app-rotten-potatoes-movies:v1          "docker-entrypoint.s…"   3 weeks ago   Up 4 minutes    0.0.0.0:8181->8181/tcp, :::8181->8181/tcp       movies
+928fa96728a8   mongo:4.0.8                                         "docker-entrypoint.s…"   3 weeks ago   Up 11 minutes   0.0.0.0:27017->27017/tcp, :::27017->27017/tcp   mongodb
+9d155f0e2ae2   postgres:14.1-alpine                                "docker-entrypoint.s…"   3 weeks ago   Up 11 minutes   0.0.0.0:5432->5432/tcp, :::5432->5432/tcp       postgres
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao6$
+
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao6$ docker ps -a | grep review
+44a48b7c8ceb   fernandomj90/app-rotten-potatoes-review:v1          "dotnet Review.Web.d…"   2 minutes ago   Exited (139) 2 minutes ago                                                   review
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao6$
+
+
+
+- Ajustando:
+
+environment:
+      ConnectionStrings__MyConnection: Host=postgres;Database=pguser;Username=pguser;Password=Pg@123;
+
+
+
+docker-compose up -d
+docker-compose up -d
+
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao6$ docker-compose up -d
+postgres is up-to-date
+mongodb is up-to-date
+Recreating review ...
+flask is up-to-date
+Recreating review ... done
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao6$
+
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao6$ docker ps -a | grep review
+805f70545675   fernandomj90/app-rotten-potatoes-review:v1          "dotnet Review.Web.d…"   16 seconds ago   Up 15 seconds   0.0.0.0:8282->80/tcp, :::8282->80/tcp           review
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao6$
+
+
+
+
+- Criando Dockerfile baseado no NossaDiretiva
+- Fonte:
+<https://github.com/nossadiretiva/review/blob/main/src/Dockerfile>
+- Arquivo novo:
+/home/fernando/cursos/kubedev/aula56-Desafio-Docker/questao6/review/src/Dockerfile2-c-sharp.dockerfile
+
+~~~~Dockerfile
+FROM mcr.microsoft.com/dotnet/aspnet:5.0 as base
+WORKDIR /app
+EXPOSE 80
+EXPOSE 443
+
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
+WORKDIR /source
+COPY *.sln .
+COPY Review.Web/*.csproj ./Review.Web/
+RUN dotnet restore
+COPY Review.Web/. ./Review.Web/
+WORKDIR /source/Review.Web
+RUN dotnet publish -c Release -o /app --no-restore
+
+FROM base as final
+WORKDIR /app
+COPY --from=build /app ./
+ENTRYPOINT ["dotnet", "Review.Web.dll"]
+~~~~
+
+
+- Ajustando o docker-compose
+
+de:
+~~~~yaml
+  review:
+    build:
+      context: ./review/src/Review.Web/
+      dockerfile: Dockerfile-C-Sharp.dockerfile
+~~~~
+
+para:
+~~~~yaml
+  review:
+    build:
+      context: ./review/src/
+      dockerfile: Dockerfile2-c-sharp.dockerfile
+~~~~
+
+
+
+
+
+- Segue com erro ao tentar abrir a página especifica
+<http://192.168.0.113:5000/single/62eed38ec377837c095d4157>
+
+~~~~bash
+  File "/usr/local/lib/python3.6/site-packages/requests/adapters.py", line 516, in send
+    raise ConnectionError(e, request=request)
+requests.exceptions.ConnectionError: HTTPConnectionPool(host='review', port=8282): Max retries exceeded with url: /api/review/62eed38ec377837c095d4157 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7fc792258b38>: Failed to establish a new connection: [Errno 111] Connection refused',))
+~~~~
+
+
+
+# ########################################################################################################################################
+# ########################################################################################################################################
+# ########################################################################################################################################
+# ########################################################################################################################################
+# ########################################################################################################################################
+# SOLUÇÃO
+- Ajustar o docker-compose, a variável da URL do review, removendo a porta 8282:
+de:
+REVIEW_SERVICE_URI: http://review:8282
+para:
+REVIEW_SERVICE_URI: http://review
+
+- Resolvido:
+página acessível agora:
+<http://192.168.0.113:5000/single/62eed38ec377837c095d4155>
+
+- Logs do flask sem erros de acesso a api de Review:
+~~~~bash
+fernando@debian10x64:~/cursos/kubedev/aula56-Desafio-Docker/questao6$ docker logs -f flask
+[2022-08-28 01:11:29 +0000] [1] [INFO] Starting gunicorn 20.0.4
+[2022-08-28 01:11:29 +0000] [1] [INFO] Listening at: http://0.0.0.0:5000 (1)
+[2022-08-28 01:11:29 +0000] [1] [INFO] Using worker: sync
+[2022-08-28 01:11:29 +0000] [11] [INFO] Booting worker with pid: 11
+[2022-08-28 01:11:38 +0000] [11] [INFO] Obtendo a lista de filmes no MongoDB
+[2022-08-28 01:11:39 +0000] [11] [INFO] Obtendo a lista de filmes no MongoDB
+[2022-08-28 01:11:41 +0000] [11] [INFO] Entrando na pagina de review do filme MATRIX
+[2022-08-28 01:12:35 +0000] [11] [INFO] Entrando na pagina de review do filme JOGOS VORAZES: A ESPERANÇA - PARTE 1
+~~~~

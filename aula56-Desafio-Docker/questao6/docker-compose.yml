@@ -19,7 +19,7 @@ services:
       MONGODB_HOST: mongodb
       MONGODB_PORT: 27017
       MOVIE_SERVICE_URI: http://movies:8181
-      REVIEW_SERVICE_URI: http://review:8282
+      REVIEW_SERVICE_URI: http://review
 #    env_file:
 #    - your-env-file.env
 #    volumes:
@@ -85,14 +85,16 @@ services:
 
   review:
     build:
-      context: ./review/src/Review.Web/
-      dockerfile: Dockerfile-C-Sharp.dockerfile
+      context: ./review/src/
+      dockerfile: Dockerfile-c-sharp.dockerfile
     container_name: review
     image: fernandomj90/app-rotten-potatoes-review:v1
     ports:
       - 8282:80
     depends_on:
       - postgres
+    environment:
+      ConnectionStrings__MyConnection: Host=postgres;Database=pguser;Username=pguser;Password=Pg@123;
     networks:
       - frontend
       - backend
