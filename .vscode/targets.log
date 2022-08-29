@@ -8,7 +8,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Fri Aug 26 22:07:34 2022
+# Make data base, printed on Sun Aug 28 20:59:07 2022
 
 # Variables
 
@@ -53,7 +53,7 @@ VSCODE_CWD = /home/fernando
 # environment
 GOPROXY = https://proxy.golang.org,direct
 # environment
-SSH_CONNECTION = 192.168.0.108 50103 192.168.0.113 22
+SSH_CONNECTION = 192.168.0.108 50585 192.168.0.113 22
 # environment
 PATH = /usr/local/go/bin:/home/fernando/.vscode-server/bin/e4503b30fc78200f846c62cf8091b76ff5547662/bin/remote-cli:/home/fernando/.serverless/bin:/home/fernando/.serverless/bin:/home/fernando/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/snap/bin
 # environment
@@ -63,7 +63,7 @@ GOPATH = /home/fernando/go
 # environment
 ELECTRON_RUN_AS_NODE = 1
 # environment
-VSCODE_IPC_HOOK_CLI = /run/user/1000/vscode-ipc-872a23ae-b443-4559-b0b4-4e3fb26bf4c8.sock
+VSCODE_IPC_HOOK_CLI = /run/user/1000/vscode-ipc-ba74dde2-b27d-46c9-bcff-53de4ab874fb.sock
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # automatic
@@ -81,7 +81,7 @@ HOME = /home/fernando
 # environment
 LOGNAME = fernando
 # environment
-APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
 # automatic
 +F = $(notdir $+)
 # environment
@@ -117,7 +117,7 @@ MAKEFLAGS = pqrR
 # environment
 MFLAGS = -pqrR
 # environment
-SSH_CLIENT = 192.168.0.108 50103 22
+SSH_CLIENT = 192.168.0.108 50585 22
 # environment
 MAIL = /var/mail/fernando
 # automatic
@@ -153,9 +153,9 @@ LANG = C
 
 # Directories
 
-# . (device 65024, inode 1962310): 18 files, no impossibilities.
+# . (device 65024, inode 1962310): 20 files, no impossibilities.
 
-# 18 files, no impossibilities in 1 directories.
+# 20 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -205,12 +205,12 @@ GNUmakefile:
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 26 / storage = 391 B / avg = 15 B
-# current buf: size = 8162 B / used = 391 B / count = 26 / avg = 15 B
+# strcache buffers: 1 (0) / strings = 28 / storage = 428 B / avg = 15 B
+# current buf: size = 8162 B / used = 428 B / count = 28 / avg = 15 B
 
-# strcache performance: lookups = 29 / hit rate = 10%
+# strcache performance: lookups = 31 / hit rate = 9%
 # hash-table stats:
-# Load=26/8192=0%, Rehash=0, Collisions=2/29=7%
-# Finished Make data base on Fri Aug 26 22:07:34 2022
+# Load=28/8192=0%, Rehash=0, Collisions=2/31=6%
+# Finished Make data base on Sun Aug 28 20:59:07 2022
 
  
