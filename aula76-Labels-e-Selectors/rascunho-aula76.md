@@ -1,4 +1,11 @@
 
+# push
+git add .
+git commit -m "aula76 - Labels"
+eval $(ssh-agent -s)
+ssh-add /home/fernando/.ssh/chave-debian10-github
+git push
+
 
 # Labels
 
