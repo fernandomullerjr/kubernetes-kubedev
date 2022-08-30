@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: ReplicaSet
 metadata:
-  name: meuprimeiroreplicaset
+  name: meu-replica-set-com-replicas-especificadas
 spec:
-  
+  replicas: 7
   selector:
     matchLabels:
       app: exemplo
@@ -13,5 +13,5 @@ spec:
         app: exemplo
     spec:
       containers:
-      - name: meucontainer
-        image: kubedevio/nginx-color:green
+      - name: meucontainerreplicado
+        image: kubedevio/nginx-color:blue
