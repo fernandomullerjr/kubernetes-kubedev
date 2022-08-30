@@ -1,6 +1,4 @@
 make all --print-data-base --no-builtin-variables --no-builtin-rules --question
-make: *** No rule to make target 'all'.  Stop.
-
 # GNU Make 4.2.1
 # Built for x86_64-pc-linux-gnu
 # Copyright (C) 1988-2016 Free Software Foundation, Inc.
@@ -8,7 +6,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Sun Aug 28 20:59:07 2022
+# Make data base, printed on Mon Aug 29 21:48:06 2022
 
 # Variables
 
@@ -53,7 +51,7 @@ VSCODE_CWD = /home/fernando
 # environment
 GOPROXY = https://proxy.golang.org,direct
 # environment
-SSH_CONNECTION = 192.168.0.108 50585 192.168.0.113 22
+SSH_CONNECTION = 192.168.0.108 54111 192.168.0.113 22
 # environment
 PATH = /usr/local/go/bin:/home/fernando/.vscode-server/bin/e4503b30fc78200f846c62cf8091b76ff5547662/bin/remote-cli:/home/fernando/.serverless/bin:/home/fernando/.serverless/bin:/home/fernando/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/snap/bin
 # environment
@@ -63,7 +61,7 @@ GOPATH = /home/fernando/go
 # environment
 ELECTRON_RUN_AS_NODE = 1
 # environment
-VSCODE_IPC_HOOK_CLI = /run/user/1000/vscode-ipc-ba74dde2-b27d-46c9-bcff-53de4ab874fb.sock
+VSCODE_IPC_HOOK_CLI = /run/user/1000/vscode-ipc-f7ac14d6-2a2c-4a52-ae05-f487a111078d.sock
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # automatic
@@ -117,7 +115,7 @@ MAKEFLAGS = pqrR
 # environment
 MFLAGS = -pqrR
 # environment
-SSH_CLIENT = 192.168.0.108 50585 22
+SSH_CLIENT = 192.168.0.108 54111 22
 # environment
 MAIL = /var/mail/fernando
 # automatic
@@ -211,6 +209,8 @@ GNUmakefile:
 # strcache performance: lookups = 31 / hit rate = 9%
 # hash-table stats:
 # Load=28/8192=0%, Rehash=0, Collisions=2/31=6%
-# Finished Make data base on Sun Aug 28 20:59:07 2022
+# Finished Make data base on Mon Aug 29 21:48:06 2022
 
  
+make: *** No rule to make target 'all'.  Stop.
+
