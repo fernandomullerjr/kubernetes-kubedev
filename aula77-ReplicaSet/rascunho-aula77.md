@@ -96,12 +96,19 @@ fernando@debian10x64:~/cursos/kubedev/aula77-ReplicaSet$
 - OBSERVAÇÃO:
 Quando não são especificas as quantidades de replicas, o Kubernetes cria 1 replica por padrão.
 
+
+
+
+
+
 - Efetuando Port-forward para o pod:
 kubectl port-forward meuprimeiroreplicaset-xpw44 8080:80
 
+~~~~bash
 fernando@debian10x64:~/cursos/kubedev/aula77-ReplicaSet$ kubectl port-forward meuprimeiroreplicaset-xpw44 8080:80
 Forwarding from 127.0.0.1:8080 -> 80
 Forwarding from [::1]:8080 -> 80
+~~~~
 
 
 fernando@debian10x64:~/cursos/kubedev/aula77-ReplicaSet$ curl localhost:8080
