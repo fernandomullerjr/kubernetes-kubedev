@@ -1,9 +1,9 @@
 apiVersion: apps/v1
-kind: ReplicaSet
+kind: Deployment
 metadata:
   name: meu-primeiro-deployment
 spec:
-  replicas: 7
+  replicas: 11
   selector:
     matchLabels:
       app: exemplo
@@ -14,4 +14,4 @@ spec:
     spec:
       containers:
       - name: meu-container-do-primeiro-deployment
-        image: kubedevio/nginx-color:blue
+        image: kubedevio/nginx-color:green
