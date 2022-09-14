@@ -192,3 +192,58 @@ curl http://api-service/temperatura/fahrenheitparacelsius/200
 root@ping-test:/# cat | curl http://api-service/temperatura/fahrenheitparacelsius/200
 {"celsius":93.33333333333333,"maquina":"api-864b7ff7ff-mbjph"}
 root@ping-test:/#
+
+
+
+# push
+git status
+git add .
+git commit -m "aula79 - Service - ClusterIP. pt2"
+eval $(ssh-agent -s)
+ssh-add /home/fernando/.ssh/chave-debian10-github
+git push
+git status
+
+
+
+
+- Escalando os Pods do Deployment, para validar:
+kubectl scale deployment api --replicas 5
+
+
+fernando@debian10x64:~/cursos/kubedev/aula79-ClusterIP$ kubectl get pods -A
+NAMESPACE     NAME                               READY   STATUS    RESTARTS       AGE
+default       api-864b7ff7ff-5tlgl               1/1     Running   0              12s
+default       api-864b7ff7ff-6sdf7               1/1     Running   0              12s
+default       api-864b7ff7ff-mbjph               1/1     Running   0              3m53s
+default       api-864b7ff7ff-xh9w8               1/1     Running   0              12s
+default       api-864b7ff7ff-xvb6w               1/1     Running   0              12s
+default       ping-test                          1/1     Running   0              24m
+kube-system   coredns-78fcd69978-8jj6b           1/1     Running   5 (28m ago)    16d
+kube-system   etcd-minikube                      1/1     Running   5 (28m ago)    16d
+kube-system   kube-apiserver-minikube            1/1     Running   5 (28m ago)    16d
+kube-system   kube-controller-manager-minikube   1/1     Running   6 (28m ago)    16d
+kube-system   kube-proxy-p7jhs                   1/1     Running   5 (28m ago)    16d
+kube-system   kube-scheduler-minikube            1/1     Running   5 (28m ago)    16d
+kube-system   storage-provisioner                1/1     Running   11 (27m ago)   16d
+fernando@debian10x64:~/cursos/kubedev/aula79-ClusterIP$
+
+
+
+- Agora efetuando novo teste de curl na api, é possível verificar que o Pod que responde a requisição vai alternando, pois estamos mandando a requisição para o Service:
+
+
+root@ping-test:/# cat | curl http://api-service/temperatura/fahrenheitparacelsius/200
+{"celsius":93.33333333333333,"maquina":"api-864b7ff7ff-5tlgl"}
+root@ping-test:/#
+root@ping-test:/#
+root@ping-test:/# cat | curl http://api-service/temperatura/fahrenheitparacelsius/200
+{"celsius":93.33333333333333,"maquina":"api-864b7ff7ff-6sdf7"}
+root@ping-test:/#
+root@ping-test:/#
+root@ping-test:/# cat | curl http://api-service/temperatura/fahrenheitparacelsius/200
+{"celsius":93.33333333333333,"maquina":"api-864b7ff7ff-xvb6w"}
+root@ping-test:/#
+root@ping-test:/# date
+Wed Sep 14 02:07:12 UTC 2022
+root@ping-test:/#
