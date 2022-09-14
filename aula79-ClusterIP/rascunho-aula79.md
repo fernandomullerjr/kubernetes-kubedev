@@ -247,3 +247,15 @@ root@ping-test:/#
 root@ping-test:/# date
 Wed Sep 14 02:07:12 UTC 2022
 root@ping-test:/#
+
+
+
+
+# push
+git status
+git add .
+git commit -m "aula79 - Service - ClusterIP. pt3, final"
+eval $(ssh-agent -s)
+ssh-add /home/fernando/.ssh/chave-debian10-github
+git push
+git status
