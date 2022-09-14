@@ -677,3 +677,13 @@ fernando@debian10x64:~$
 
 Na próxima aula veremos sobre Services.
 Pois o Service é mais dinamico para expor os nossos Pods, para não precisarmos usar o port-forwarding.
+
+
+# push
+git status
+git add .
+git commit -m "aula78 - Deployment. pt2"
+eval $(ssh-agent -s)
+ssh-add /home/fernando/.ssh/chave-debian10-github
+git push
+git status
