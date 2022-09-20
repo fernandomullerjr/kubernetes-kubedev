@@ -168,3 +168,21 @@ root@ping-test:/# curl -v fernando-service-external-4devs
 * Connection #0 to host fernando-service-external-4devs left intact
 root@ping-test:/# ^C
 ~~~~
+
+
+
+# push
+
+git status
+git add .
+git commit -m "aula82 - Service - ExternalName. pt2"
+eval $(ssh-agent -s)
+ssh-add /home/fernando/.ssh/chave-debian10-github
+git push
+git status
+
+
+
+
+#  Conclusão
+Mapear serviços externos como internos dá a você a flexibilidade de agregar esses serviços ao cluster no futuro e ainda minimizar os trabalhos de refatoração. Mesmo que você não planeje agregá-los hoje, nunca se sabe o dia de amanhã, não é? Além disso, desse jeito fica bem mais fácil gerenciar e entender que serviços externos sua organização usa. Se o serviço externo tem um nome de domínio válido e não precisa de remapeamento de portas, usar o tipo de serviço "ExternalName" é um jeito rápido e fácil de mapear o serviço externo como interno. Caso você não tenha um nome de domínio ou precise fazer remapeamento de portas, é só adicionar os endereços IP a um ponto de extremidade e usá-lo.
