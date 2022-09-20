@@ -1,4 +1,6 @@
 make all --print-data-base --no-builtin-variables --no-builtin-rules --question
+make: *** No rule to make target 'all'.  Stop.
+
 # GNU Make 4.2.1
 # Built for x86_64-pc-linux-gnu
 # Copyright (C) 1988-2016 Free Software Foundation, Inc.
@@ -6,7 +8,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Tue Sep 13 22:33:02 2022
+# Make data base, printed on Mon Sep 19 23:54:04 2022
 
 # Variables
 
@@ -37,7 +39,7 @@ SHELL = /bin/sh
 # environment
 VSCODE_NLS_CONFIG = {"locale":"en","availableLanguages":{}}
 # environment
-_ = /home/fernando/.vscode-server/bin/784b0177c56c607789f9638da7b6bf3230d47a8c/node
+_ = /home/fernando/.vscode-server/bin/74b1f979648cc44d385a2286793c226e611f59e7/node
 # makefile
 MAKEFILE_LIST := 
 # 'override' directive
@@ -51,9 +53,9 @@ VSCODE_CWD = /home/fernando
 # environment
 GOPROXY = https://proxy.golang.org,direct
 # environment
-SSH_CONNECTION = 192.168.0.108 59066 192.168.0.113 22
+SSH_CONNECTION = 192.168.0.108 65280 192.168.0.113 22
 # environment
-PATH = /usr/local/go/bin:/home/fernando/.vscode-server/bin/784b0177c56c607789f9638da7b6bf3230d47a8c/bin/remote-cli:/home/fernando/.serverless/bin:/home/fernando/.serverless/bin:/home/fernando/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/snap/bin
+PATH = /usr/local/go/bin:/home/fernando/.vscode-server/bin/74b1f979648cc44d385a2286793c226e611f59e7/bin/remote-cli:/home/fernando/.serverless/bin:/home/fernando/.serverless/bin:/home/fernando/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/snap/bin
 # environment
 XDG_RUNTIME_DIR = /run/user/1000
 # environment
@@ -61,7 +63,7 @@ GOPATH = /home/fernando/go
 # environment
 ELECTRON_RUN_AS_NODE = 1
 # environment
-VSCODE_IPC_HOOK_CLI = /run/user/1000/vscode-ipc-b3c2fa5a-c868-4038-b41d-b470ba9317f8.sock
+VSCODE_IPC_HOOK_CLI = /run/user/1000/vscode-ipc-a9bf0f78-6e19-4f06-abe1-910154782842.sock
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # automatic
@@ -95,7 +97,7 @@ MAKECMDGOALS := all
 # environment
 SHLVL = 0
 # environment
-XDG_SESSION_ID = 6
+XDG_SESSION_ID = 5
 # environment
 USER = fernando
 # makefile
@@ -115,13 +117,13 @@ MAKEFLAGS = pqrR
 # environment
 MFLAGS = -pqrR
 # environment
-SSH_CLIENT = 192.168.0.108 59066 22
+SSH_CLIENT = 192.168.0.108 65280 22
 # environment
 MAIL = /var/mail/fernando
 # automatic
 +D = $(patsubst %/,%,$(dir $+))
 # environment
-BROWSER = /home/fernando/.vscode-server/bin/784b0177c56c607789f9638da7b6bf3230d47a8c/bin/helpers/browser.sh
+BROWSER = /home/fernando/.vscode-server/bin/74b1f979648cc44d385a2286793c226e611f59e7/bin/helpers/browser.sh
 # environment
 VSCODE_HANDLES_SIGPIPE = true
 # default
@@ -151,9 +153,9 @@ LANG = C
 
 # Directories
 
-# . (device 65024, inode 1962310): 22 files, no impossibilities.
+# . (device 65024, inode 1962310): 24 files, no impossibilities.
 
-# 22 files, no impossibilities in 1 directories.
+# 24 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -203,14 +205,12 @@ GNUmakefile:
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 30 / storage = 464 B / avg = 15 B
-# current buf: size = 8162 B / used = 464 B / count = 30 / avg = 15 B
+# strcache buffers: 1 (0) / strings = 32 / storage = 497 B / avg = 15 B
+# current buf: size = 8162 B / used = 497 B / count = 32 / avg = 15 B
 
-# strcache performance: lookups = 33 / hit rate = 9%
+# strcache performance: lookups = 35 / hit rate = 8%
 # hash-table stats:
-# Load=30/8192=0%, Rehash=0, Collisions=2/33=6%
-# Finished Make data base on Tue Sep 13 22:33:02 2022
+# Load=32/8192=0%, Rehash=0, Collisions=2/35=6%
+# Finished Make data base on Mon Sep 19 23:54:04 2022
 
  
-make: *** No rule to make target 'all'.  Stop.
-
