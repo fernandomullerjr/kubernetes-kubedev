@@ -103,3 +103,18 @@ NAME                             DESIRED   CURRENT   READY   AGE
 replicaset.apps/api-864b7ff7ff   1         1         1       52s
 fernando@debian10x64:~/cursos/kubedev/aula81-LoadBalancer$ ^C
 ~~~~
+
+
+- Verificando os services apenas:
+
+~~~~bash
+fernando@debian10x64:~/cursos/kubedev/aula81-LoadBalancer$ kubectl get services
+NAME          TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+api-service   LoadBalancer   10.97.235.114   <pending>     80:30042/TCP   6d1h
+kubernetes    ClusterIP      10.96.0.1       <none>        443/TCP        23d
+fernando@debian10x64:~/cursos/kubedev/aula81-LoadBalancer$
+~~~~
+
+
+- Verificando o service LoadBalancer, ele está com o status de <pending>, pois não estamos conectados numa nuvem, estamos usando o Minikube.
+- Se usarmos um serviço de nuvem, ao aplicar estes recursos, temos um endereço ip no campo "EXTERNAL-IP".
