@@ -32,7 +32,7 @@ git clone https://github.com/KubeDev/pedelogo-catalogo.git
 
 
 - É necessário criar um Dockerfile
-- Usaremos Multistage, pois não é necessário fazer o restore toda vez que formos executar o Container.
+- Usaremos Multistage, pois não é necessário fazer o restore toda vez que formos executar o Container. Este processo de restore baixa todos os pacotes do repositório no Get.
 
 
 ~~~~Dockerfile
