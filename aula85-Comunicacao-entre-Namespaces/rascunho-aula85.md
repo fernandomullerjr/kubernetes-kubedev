@@ -90,3 +90,34 @@ eval $(ssh-agent -s)
 ssh-add /home/fernando/.ssh/chave-debian10-github
 git push
 git status
+
+
+
+- Criando um Pod do Ubuntu no Namespace "default", para validar a comunicação:
+kubectl run -i --tty --image kubedevio/ubuntu-curl ping-test --restart=Never --rm -- /bin/bash
+
+
+- Pegando ip dos Pods:
+
+fernando@debian10x64:~$ kubectl get pods -A -o wide
+NAMESPACE     NAME                                  READY   STATUS    RESTARTS       AGE   IP             NODE       NOMINATED NODE   READINESS GATES
+blue          deploy-nginx-color-7c587bcd8f-sgwbf   1/1     Running   0              15m   172.17.0.3     minikube   <none>           <none>
+default       ping-test                             1/1     Running   0              11s   172.17.0.5     minikube   <none>           <none>
+green         deploy-nginx-color-655b9bb494-4t2mh   1/1     Running   0              15m   172.17.0.4     minikube   <none>           <none>
+kube-system   coredns-78fcd69978-8jj6b              1/1     Running   9 (31m ago)    27d   172.17.0.2     minikube   <none>           <none>
+kube-system   etcd-minikube                         1/1     Running   9 (31m ago)    27d   192.168.49.2   minikube   <none>           <none>
+kube-system   kube-apiserver-minikube               1/1     Running   9 (31m ago)    27d   192.168.49.2   minikube   <none>           <none>
+kube-system   kube-controller-manager-minikube      1/1     Running   11 (31m ago)   27d   192.168.49.2   minikube   <none>           <none>
+kube-system   kube-proxy-p7jhs                      1/1     Running   9 (31m ago)    27d   192.168.49.2   minikube   <none>           <none>
+kube-system   kube-scheduler-minikube               1/1     Running   9 (31m ago)    27d   192.168.49.2   minikube   <none>           <none>
+kube-system   storage-provisioner                   1/1     Running   19             27d   192.168.49.2   minikube   <none>           <none>
+fernando@debian10x64:~$
+
+
+- Testando comunicação a partir do Pod do Ubuntu CURL:
+
+root@ping-test:/# curl 172.17.0.3 -s | grep color
+        background-color: blue;
+root@ping-test:/#
+
+comunicação ocorre, mesmo estando em Namespaces distintos!
