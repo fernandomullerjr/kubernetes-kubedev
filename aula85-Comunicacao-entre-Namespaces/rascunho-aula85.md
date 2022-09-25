@@ -120,4 +120,81 @@ root@ping-test:/# curl 172.17.0.3 -s | grep color
         background-color: blue;
 root@ping-test:/#
 
-comunicação ocorre, mesmo estando em Namespaces distintos!
+- Comunicação ocorre, mesmo estando em Namespaces distintos!
+
+
+
+
+
+# Dia 25/09/2022
+
+# Testando comunicação com o Service
+
+- Necessário deletar o Pod do Ubuntu Curl e recriar ele, pois está com erro:
+
+fernando@debian10x64:~/cursos/kubedev/aula85-Comunicacao-entre-Namespaces$  kubectl get pods -A -o wide
+NAMESPACE     NAME                                  READY   STATUS    RESTARTS         AGE   IP             NODE       NOMINATED NODE   READINESS GATES
+blue          deploy-nginx-color-7c587bcd8f-sgwbf   1/1     Running   1 (2m18s ago)    12h   172.17.0.3     minikube   <none>           <none>
+default       ping-test                             0/1     Error     0                12h   <none>         minikube   <none>           <none>
+green         deploy-nginx-color-655b9bb494-4t2mh   1/1     Running   1 (2m18s ago)    12h   172.17.0.4     minikube   <none>           <none>
+fernando@debian10x64:~/cursos/kubedev/aula85-Comunicacao-entre-Namespaces$ kubectl delete pod ping-test
+pod "ping-test" deleted
+fernando@debian10x64:~/cursos/kubedev/aula85-Comunicacao-entre-Namespaces$
+
+kubectl run -i --tty --image kubedevio/ubuntu-curl ping-test --restart=Never --rm -- /bin/bash
+
+
+
+
+- Pegando detalhes do Node e dos Services:
+
+kubectl get nodes -o wide
+kubectl get svc -o wide -A
+
+fernando@debian10x64:~/cursos/kubedev/aula85-Comunicacao-entre-Namespaces$ kubectl get nodes -o wide
+NAME       STATUS   ROLES                  AGE   VERSION   INTERNAL-IP    EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION    CONTAINER-RUNTIME
+minikube   Ready    control-plane,master   28d   v1.22.2   192.168.49.2   <none>        Ubuntu 20.04.2 LTS   4.19.0-17-amd64   docker://20.10.8
+fernando@debian10x64:~/cursos/kubedev/aula85-Comunicacao-entre-Namespaces$ kubectl get svc -o wide -A
+NAMESPACE     NAME                              TYPE           CLUSTER-IP       EXTERNAL-IP     PORT(S)                  AGE    SELECTOR
+blue          service-nginx-color               NodePort       10.107.181.119   <none>          80:31991/TCP             12h    app=nginx-color
+default       api-service                       LoadBalancer   10.97.235.114    <pending>       80:30042/TCP             11d    app=api
+default       fernando-service-external         ExternalName   <none>           appmax.com.br   <none>                   5d9h   <none>
+default       fernando-service-external-4devs   ExternalName   <none>           4devs.com.br    <none>                   5d8h   <none>
+default       kubernetes                        ClusterIP      10.96.0.1        <none>          443/TCP                  28d    <none>
+green         service-nginx-color               NodePort       10.109.189.22    <none>          80:30884/TCP             12h    app=nginx-color
+kube-system   kube-dns                          ClusterIP      10.96.0.10       <none>          53/UDP,53/TCP,9153/TCP   28d    k8s-app=kube-dns
+fernando@debian10x64:~/cursos/kubedev/aula85-Comunicacao-entre-Namespaces$
+
+
+
+- Testando a partir do Pod do Ubuntu-Curl, comunicação OK com o IP do Node e a porta do Service:
+
+curl http://192.168.49.2:31991 -s | grep color
+
+root@ping-test:/# curl http://192.168.49.2:31991 -s | grep color
+        background-color: blue;
+root@ping-test:/#
+
+
+curl http://192.168.49.2:30884 -s | grep color
+
+root@ping-test:/# curl http://192.168.49.2:30884 -s | grep color
+        background-color: green;
+root@ping-test:/#
+
+
+
+- Testando comunicação a partir do Pod Ubuntu-Curl, para o nome do Service:
+
+curl http://service-nginx-color | grep color
+
+Ocorre o erro abaixo:
+
+root@ping-test:/# curl http://service-nginx-color
+curl: (6) Could not resolve host: service-nginx-color
+root@ping-test:/#
+
+Este problema acontece porque o Service está em outro Namespace, o Ubuntu-Curl está no Namespace "default", enquanto os services estão em Namespaces separados(blue, green).
+
+
+Nome completo do Service, quando não está no mesmo Namespace.
