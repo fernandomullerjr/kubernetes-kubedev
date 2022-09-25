@@ -128,6 +128,7 @@ root@ping-test:/#
 
 # Dia 25/09/2022
 
+# ##############################################################################################################################################################
 # Testando comunicação com o Service
 
 - Necessário deletar o Pod do Ubuntu Curl e recriar ele, pois está com erro:
@@ -197,4 +198,106 @@ root@ping-test:/#
 Este problema acontece porque o Service está em outro Namespace, o Ubuntu-Curl está no Namespace "default", enquanto os services estão em Namespaces separados(blue, green).
 
 
-Nome completo do Service, quando não está no mesmo Namespace.
+
+- Para poder comunicar com os services, é necessário o nome completo do Service, quando não está no mesmo Namespace.
+- Exemplo:
+<service>.<namespace>.svc.cluster.local
+
+curl http://service-nginx-color.blue.svc.cluster.local
+curl -s http://service-nginx-color.blue.svc.cluster.local | grep color
+
+root@ping-test:/# curl -s http://service-nginx-color.blue.svc.cluster.local | grep color
+        background-color: blue;
+root@ping-test:/#
+
+
+curl http://service-nginx-color.green.svc.cluster.local
+curl -s http://service-nginx-color.green.svc.cluster.local | grep color
+
+root@ping-test:/# curl -s http://service-nginx-color.green.svc.cluster.local | grep color
+        background-color: green;
+root@ping-test:/#
+
+
+
+
+# ##############################################################################################################################################################
+# Usando Service ExternalName
+
+- Uma outra maneira de comunicar a partir de um Namespace diferente com os Namespaces que desejamos, é utilizando o Service do tipo ExternalName.
+- Criamos um apontamento para cada service dos Namespace especificos, usando o nome completo do Service para o apontamento do externalName.
+- Assim conseguimos resolver o nome a partir do Namespace diferente!
+
+blue
+
+~~~~yaml
+kind: Service
+apiVersion: v1
+metadata:
+  name: service-nginx-blue
+spec:
+  type: ExternalName
+  externalName: service-nginx-color.blue.svc.cluster.local
+~~~~
+
+green
+
+~~~~yaml
+kind: Service
+apiVersion: v1
+metadata:
+  name: service-nginx-green
+spec:
+  type: ExternalName
+  externalName: service-nginx-color.green.svc.cluster.local
+~~~~
+
+
+- Atualmente, não conseguimos resolver os nomes destes services:
+
+root@ping-test:/# curl http://service-nginx-blue
+curl: (6) Could not resolve host: service-nginx-blue
+root@ping-test:/#
+root@ping-test:/# curl http://service-nginx-green
+curl: (6) Could not resolve host: service-nginx-green
+root@ping-test:/#
+
+- Aplicando os Service ExternalName:
+kubectl apply -f /home/fernando/cursos/kubedev/aula85-Comunicacao-entre-Namespaces/service-external-blue.yaml -f /home/fernando/cursos/kubedev/aula85-Comunicacao-entre-Namespaces/service-external-green.yaml
+
+fernando@debian10x64:~/cursos/kubedev/aula85-Comunicacao-entre-Namespaces$ kubectl get svc -o wide -A
+NAMESPACE     NAME                              TYPE           CLUSTER-IP       EXTERNAL-IP                                   PORT(S)                  AGE    SELECTOR
+blue          service-nginx-color               NodePort       10.107.181.119   <none>                                        80:31991/TCP             13h    app=nginx-color
+default       api-service                       LoadBalancer   10.97.235.114    <pending>                                     80:30042/TCP             11d    app=api
+default       fernando-service-external         ExternalName   <none>           appmax.com.br                                 <none>                   5d9h   <none>
+default       fernando-service-external-4devs   ExternalName   <none>           4devs.com.br                                  <none>                   5d9h   <none>
+default       kubernetes                        ClusterIP      10.96.0.1        <none>                                        443/TCP                  28d    <none>
+default       service-nginx-blue                ExternalName   <none>           service-nginx-color.blue.svc.cluster.local    <none>                   3s     <none>
+default       service-nginx-green               ExternalName   <none>           service-nginx-color.green.svc.cluster.local   <none>                   3s     <none>
+green         service-nginx-color               NodePort       10.109.189.22    <none>                                        80:30884/TCP             13h    app=nginx-color
+kube-system   kube-dns                          ClusterIP      10.96.0.10       <none>                                        53/UDP,53/TCP,9153/TCP   28d    k8s-app=kube-dns
+fernando@debian10x64:~/cursos/kubedev/aula85-Comunicacao-entre-Namespaces$
+
+
+- Agora está funcionando:
+
+root@ping-test:/# curl -s http://service-nginx-blue | grep color
+        background-color: blue;
+root@ping-test:/#
+root@ping-test:/#
+root@ping-test:/#
+root@ping-test:/# curl -s http://service-nginx-green | grep color
+        background-color: green;
+root@ping-test:/#
+
+
+
+# push
+
+git status
+git add .
+git commit -m "aula85 - Comunicação entre Namespaces. pt2"
+eval $(ssh-agent -s)
+ssh-add /home/fernando/.ssh/chave-debian10-github
+git push
+git status
