@@ -1,6 +1,6 @@
 # kubernetes-kubedev
 
-Materiais sobre o curso de Kubernetes da empresa KubeDev.
+Materiais sobre o curso de Kubernetes da empresa KubeDev, atual empresa DevOps PRO.
 
 
 # Conteúdo:

@@ -118,3 +118,13 @@ fernando@debian10x64:~/cursos/kubedev/aula86-Deploy-de-uma-aplicacao/pedelogo-ca
 mkdir k8s
 
 continua em 16:00min
+
+# push
+
+git status
+git add .
+git commit -m "aula86 - Subindo a aplicação. pt2"
+eval $(ssh-agent -s)
+ssh-add /home/fernando/.ssh/chave-debian10-github
+git push
+git status

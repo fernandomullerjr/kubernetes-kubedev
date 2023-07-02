@@ -8,7 +8,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Sun Sep 25 09:33:26 2022
+# Make data base, printed on Sun Sep 25 20:15:10 2022
 
 # Variables
 
@@ -51,19 +51,15 @@ DBUS_SESSION_BUS_ADDRESS = unix:path=/run/user/1000/bus
 # environment
 VSCODE_CWD = /home/fernando
 # environment
-GOPROXY = https://proxy.golang.org,direct
+SSH_CONNECTION = 192.168.0.108 61705 192.168.0.113 22
 # environment
-SSH_CONNECTION = 192.168.0.108 52674 192.168.0.113 22
-# environment
-PATH = /usr/local/go/bin:/home/fernando/.vscode-server/bin/74b1f979648cc44d385a2286793c226e611f59e7/bin/remote-cli:/home/fernando/.serverless/bin:/home/fernando/.serverless/bin:/home/fernando/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/snap/bin
+PATH = /home/fernando/.vscode-server/bin/74b1f979648cc44d385a2286793c226e611f59e7/bin/remote-cli:/home/fernando/.serverless/bin:/home/fernando/.serverless/bin:/home/fernando/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/snap/bin
 # environment
 XDG_RUNTIME_DIR = /run/user/1000
 # environment
-GOPATH = /home/fernando/go
-# environment
 ELECTRON_RUN_AS_NODE = 1
 # environment
-VSCODE_IPC_HOOK_CLI = /run/user/1000/vscode-ipc-60ec1c9e-b2b1-4f4a-b96b-a381142c29e2.sock
+VSCODE_IPC_HOOK_CLI = /run/user/1000/vscode-ipc-319157a6-fa07-40eb-8b1a-fbe60da7c0cd.sock
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # automatic
@@ -117,7 +113,7 @@ MAKEFLAGS = pqrR
 # environment
 MFLAGS = -pqrR
 # environment
-SSH_CLIENT = 192.168.0.108 52674 22
+SSH_CLIENT = 192.168.0.108 61705 22
 # environment
 MAIL = /var/mail/fernando
 # automatic
@@ -145,7 +141,7 @@ MAKE_HOST := x86_64-pc-linux-gnu
 # environment
 LANG = C
 # variable set hash-table stats:
-# Load=66/1024=6%, Rehash=0, Collisions=9/88=10%
+# Load=64/1024=6%, Rehash=0, Collisions=9/86=10%
 
 # Pattern-specific Variable Values
 
@@ -153,9 +149,9 @@ LANG = C
 
 # Directories
 
-# . (device 65024, inode 1962310): 29 files, no impossibilities.
+# . (device 65024, inode 1962310): 30 files, no impossibilities.
 
-# 29 files, no impossibilities in 1 directories.
+# 30 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -205,12 +201,12 @@ GNUmakefile:
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 37 / storage = 607 B / avg = 16 B
-# current buf: size = 8162 B / used = 607 B / count = 37 / avg = 16 B
+# strcache buffers: 1 (0) / strings = 38 / storage = 638 B / avg = 16 B
+# current buf: size = 8162 B / used = 638 B / count = 38 / avg = 16 B
 
-# strcache performance: lookups = 40 / hit rate = 7%
+# strcache performance: lookups = 41 / hit rate = 7%
 # hash-table stats:
-# Load=37/8192=0%, Rehash=0, Collisions=2/40=5%
-# Finished Make data base on Sun Sep 25 09:33:26 2022
+# Load=38/8192=0%, Rehash=0, Collisions=2/41=5%
+# Finished Make data base on Sun Sep 25 20:15:10 2022
 
  
